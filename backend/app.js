@@ -484,7 +484,7 @@ app.post('/api/login', async (req, res) => {
     }
 
     try {
-        const { rows } = await pool.query('SELECT id, pass, is_admin FROM employees WHERE full_name = $1', [name]);
+        const { rows } = await pool.query('SELECT id, pass FROM users WHERE username = $1', [name]);
 
         if (rows.length === 0) {
             console.log('-> User not found with:', name);
@@ -498,7 +498,7 @@ app.post('/api/login', async (req, res) => {
                  userId: rows[0].id, 
                  name:name,
                  isAdmin: (rows[0].is_admin !== 0) }, 
-                 secretKey, { expiresIn: '24h' }
+                 secretKey, { expiresIn: '6h' }
                 );
             console.log('-> Login request successful with:', name);
             return res.status(200).json({

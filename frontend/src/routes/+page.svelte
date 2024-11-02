@@ -18,15 +18,18 @@ async function login() {
                 headers: {
                     'Authorization': `Bearer ${token}`, 
                     'Content-Type': 'application/json'
-                }
+                }, body: JSON.stringify({ name: username,password: password })
             });
 
             const data = await response.json();
 
             if (response.ok) {
                 console.log('Authenticated user:', data);
-                if(!data.error)window.location='/user'
-               
+                if(!data.error){
+                    localStorage.setItem('apex_cloud', data.token);
+                    window.location='/user'
+                }
+                
             } else {
                 alert(data.error || 'Token is invalid');
             }
@@ -79,7 +82,7 @@ onMount(()=>{
     <div class="flex flex-col justify-center h-full w-1/3">
 
         {#if register}
-            <div class="bg-gray-300 w-10/12 text-xl flex flex-col justify-around gap-4 px-5 py-5 shadow-xl rounded-xl ">
+            <div class="bg-gray-200 w-10/12 text-xl flex flex-col justify-around gap-4 px-5 py-5 shadow-xl rounded-xl ">
                 <div class="text-center text-4xl my-2">Register </div>
             
                 <input bind:value={username} class="w-11/12 shadow-sm mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="username">        
@@ -106,7 +109,7 @@ onMount(()=>{
 
             </div>
         {:else}
-        <div class="bg-gray-300 w-10/12 text-xl flex flex-col justify-around gap-4 px-5 py-5 shadow-xl rounded-xl ">
+        <div class="bg-gray-200 w-10/12 text-xl flex flex-col justify-around gap-4 px-5 py-5 shadow-xl rounded-xl ">
             <div class="text-center text-4xl my-3">Login </div>
         
             <input bind:value={username} class="w-11/12 shadow-sm mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="username">
