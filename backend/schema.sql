@@ -1,11 +1,11 @@
 DROP TABLE IF EXISTS packs CASCADE;
-DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS divisions CASCADE;
-DROP TABLE IF EXISTS files CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS folders CASCADE;
+DROP TABLE IF EXISTS files CASCADE;
 DROP TABLE IF EXISTS actions CASCADE;
-DROP TABLE IF EXISTS activities CASCADE;
 DROP TABLE IF EXISTS access_shared CASCADE;
+DROP TABLE IF EXISTS activities CASCADE;
 
 CREATE TABLE packs(
     id SERIAL PRIMARY KEY,
@@ -43,8 +43,8 @@ CREATE TABLE folders(
     parent INTEGER DEFAULT NULL,
     FOREIGN KEY (parent) REFERENCES folders(id),
     created_at TIMESTAMP,
-    user INTEGER,
-    FOREIGN KEY (user) REFERENCES users(id)
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE files(
@@ -55,8 +55,8 @@ CREATE TABLE files(
     folder_name INTEGER,
     FOREIGN KEY (folder_name) REFERENCES folders(id),
     created_at TIMESTAMP,
-    user INTEGER,
-    FOREIGN KEY (user) REFERENCES users(id)
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE actions(
@@ -68,10 +68,10 @@ CREATE TABLE access_shared(
     id SERIAL PRIMARY KEY,
     created_at TIMESTAMP,
     created_by INTEGER,
-    file_name INTEGER,
-    folder_name INTEGER,
-    FOREIGN KEY (file_name) REFERENCES files(id),
-    FOREIGN KEY (folder_name) REFERENCES folders(id),
+    file_id INTEGER,
+    folder_id INTEGER,
+    FOREIGN KEY (file_id) REFERENCES files(id),
+    FOREIGN KEY (folder_id) REFERENCES folders(id),
     action_type INTEGER,
     FOREIGN KEY (action_type) REFERENCES actions(id),
     shared_to INTEGER,
@@ -82,12 +82,12 @@ CREATE TABLE access_shared(
 
 CREATE TABLE activities(
     id SERIAL PRIMARY KEY,
-    user INTEGER,
-    FOREIGN KEY (user) REFERENCES users(id),
-    file_name INTEGER,
-    folder_name INTEGER,
-    FOREIGN KEY (file_name) REFERENCES files(id),
-    FOREIGN KEY (folder_name) REFERENCES folders(id),
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    file_id INTEGER,
+    folder_id INTEGER,
+    FOREIGN KEY (file_id) REFERENCES files(id),
+    FOREIGN KEY (folder_id) REFERENCES folders(id),
     action_type INTEGER,
     FOREIGN KEY (action_type) REFERENCES actions(id),
     created_at TIMESTAMP
