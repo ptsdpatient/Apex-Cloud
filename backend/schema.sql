@@ -1,0 +1,59 @@
+DROP TABLE IF EXISTS packs CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS divisions CASCADE;
+DROP TABLE IF EXISTS files CASCADE;
+DROP TABLE IF EXISTS folder CASCADE;
+
+CREATE TABLE packs(
+    id SERIAL PRIMARY KEY,
+    pack TEXT,
+    storage TEXT,
+    cost TEXT
+);
+
+CREATE TABLE divisions(
+    id SERIAL PRIMARY KEY,
+    division TEXT,
+    division_address TEXT
+);
+
+CREATE TABLE users(
+    id SERIAL PRIMARY KEY,
+    username TEXT,
+    pass TEXT,
+    email TEXT,
+    phone_number TEXT,
+    last_login TEXT,
+    division INTEGER,
+    storage TEXT,
+    FOREIGN KEY (division) REFERENCES divisions(id),
+    pack INTEGER,
+    FOREIGN KEY (pack) REFERENCES packs(id)
+);
+
+
+CREATE TABLE folders(
+    id SERIAL PRIMARY KEY,
+    folder_name TEXT,
+    folder_path TEXT,
+    parent INTEGER DEFAULT NULL,
+    FOREIGN KEY (parent) REFERENCES folders(id),
+    created_at TIMESTAMP,
+    user INTEGER,
+    FOREIGN KEY (user) REFERENCES users(id)
+);
+
+CREATE TABLE files(
+    id SERIAL PRIMARY KEY,
+    file_name TEXT,
+    file_path TEXT,
+    file_size TEXT,
+    folder_name INTEGER,
+    FOREIGN KEY (folder_name) REFERENCES folders(id),
+    created_at TIMESTAMP,
+    user INTEGER,
+    FOREIGN KEY (user) REFERENCES users(id)
+);
+
+
+
