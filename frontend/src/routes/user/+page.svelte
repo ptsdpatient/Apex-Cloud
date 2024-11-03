@@ -127,17 +127,35 @@
                             <button class="px-4  text-xl rounded-lg py-1  transition-all bg-gray-500 hover:bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">{button}</button>
                         {/each}
                     </div>
-                    <div class="bg-yellow-400 ">
-                        <table class="w-full border-collapse text-sm text-gray-800">
-                            <thead class="bg-blue-200 text-blue-900 font-semibold">
-                              <tr>
-                                <th class=" py-3 border-b border-gray-300 text-center">#</th>
-                                <th class=" py-3 border-b border-gray-300 text-center">File Name</th>
-                                <th class=" py-3 border-b border-gray-300 text-center">Created At</th>
-                                <th class=" py-3 border-b border-gray-300 text-center">Actions</th>
+                    <div class="bg-gray-100 h-full">
+                        <table class="w-full border-collapse text-xl">
+                            <thead class="text-black bg-white">
+                              <tr class="shadow-lg rounded-xl">
+                                <td class=" py-3  text-center">#</td>
+                                <td class=" py-3 text-left pl-5">File Name</td>
+                                <td class=" py-3 text-left pl-5">Created At</td>
+                                <td class=" py-3 text-left pl-5">Actions</td>
                               </tr>
                             </thead>
-                          </table>
+                            <tbody class="">
+                                {#each currentFiles as files,index}
+                                    <tr class="hover:bg-white hover:shadow-lg rounded-xl hover:cursor-pointer transition-all ease-in-out">
+                                        <td class=" py-2  text-center">{index+1}</td>
+                                        <td class=" py-2 text-left pl-5"><input class="transform scale-105 mx-3" type="checkbox">{files.name}</td>
+                                        <td class=" py-2 text-left pl-5">{files.created_at}</td>
+                                        <td class=" py-2 text-left pl-5">
+                                            <div class="flex flex-row gap-4 text-2xl">
+                                                <button>🔖</button>
+                                                <button>➦</button>
+                                                <button>🗑️</button>
+                                            </div>                                    
+                                        </td>
+                                    </tr>    
+                                {/each}
+                                
+
+                            </tbody>
+                        </table>
                     </div>
 
 
