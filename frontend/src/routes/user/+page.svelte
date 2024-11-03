@@ -80,7 +80,7 @@
     <title>Apex Cloud | {full_name}</title>
     
     <div class="flex flex-col" style="width:100vw;height:100svh">
-        <div class="flex flex-grow gap-2 justify-around p-2 flex-row bg-gray-100">
+        <div class="flex flex-grow gap-2 justify-around p-2 flex-row bg-gray-200">
             <div class="w-1/4 px-3 pb-2 flex flex-col items-left align-left gap-2  h-full rounded-lg overflow-y-auto justify-between">
                 <div class="flex flex-row gap-4 items-center">
                     <img class="w-16 py-1" src="/logo.png" alt="">
@@ -93,7 +93,7 @@
                 <button class="text-lg rounded-lg py-2 my-1  transition-all bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">Upload Files</button>
 
                 {#each panelButtons as button,index}
-                    <button on:click={currentPanel=index} class="{currentPanel==index?"bg-blue-100":""} focus:bg-blue-100 flex pl-2 py-2 flex-row items-center transform transition-all duration-100 focus:outline-none  hover:scale-105 outline-none focus:scale-105 hover:bg-white rounded-xl">
+                    <button on:click={currentPanel=index} class="{currentPanel==index?"bg-white":""} hover:bg-gray-100 focus:bg-white flex pl-2 py-2 flex-row items-center transform transition-all duration-100 focus:outline-none  hover:scale-105 outline-none focus:scale-105  rounded-xl">
                         <img class="" src='{button}.png' alt="">
                         <div class="pl-3 w-full text-left text-lg">{button}</div>
                     </button>
@@ -101,8 +101,18 @@
                 <button on:click={logout} class="text-lg py-2 text-white px-4  bg-gray-500 transform transition-transform hover:scale-105 hover:bg-red-600 hover:scale-105 duration-100 rounded-lg">Logout</button>
 
             </div>
-            <div class="w-3/4 flex flex-col bg-white rounded-lg">
-                <div class="flex flex-row w-full text-xl justify-between py-3 px-2 gap-3 shadow-sm">
+            <div class="w-3/4 flex p-2 m-2 flex-col bg-white rounded-lg">
+             
+                    <div class="flex flex-row gap-2  py-3">
+                        <button class="px-4  text-xl rounded-lg py-1  transition-all bg-gray-500 hover:bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">Select All</button>
+
+                        <input placeholder="⌕ Search Files" class="focus:outline-none bg-gray-100 flex flex-grow placeholder-black text-lg pl-4 rounded-xl">
+
+                        {#each operationButtons as button}
+                            <button class="px-4  text-xl rounded-lg py-1  transition-all bg-gray-500 hover:bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">{button}</button>
+                        {/each}
+                    </div>
+                    <div class="flex flex-row w-full text-xl justify-between py-3 px-2 gap-3 shadow-sm">
                         <div class="flex flex-row">
                             <button class="px-4 text-xl rounded-lg py-1 mr-2 hover:bg-gray-100 text-black transition-all ease-in-out duration-100">←</button>
                             <div class="flex flex-row text-xl">
@@ -118,20 +128,11 @@
                         <button class="px-4 mr-4 text-xl rounded-lg py-1  transition-all bg-gray-500 hover:bg-red-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">Delete Folder</button>
                     </div>
 
-                    <div class="flex flex-row gap-2 pl-2 py-3">
-                        <button class="px-4  text-xl rounded-lg py-1  transition-all bg-gray-500 hover:bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">Select All</button>
-
-                        <input placeholder="⌕ Search Files" class="focus:outline-none bg-gray-100 flex flex-grow placeholder-black text-lg pl-4 rounded-xl">
-
-                        {#each operationButtons as button}
-                            <button class="px-4  text-xl rounded-lg py-1  transition-all bg-gray-500 hover:bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">{button}</button>
-                        {/each}
-                    </div>
-                    <div class="bg-gray-100 h-full">
+                    <div class="bg-white h-full">
                         <table class="w-full border-collapse text-xl">
-                            <thead class="text-black bg-white">
-                              <tr class="shadow-lg rounded-xl">
-                                <td class=" py-3  text-center">#</td>
+                            <thead class="text-black bg-white my-4">
+                              <tr class="shadow-sm ">
+                                <!-- <td class=" py-3  text-center">#</td> -->
                                 <td class=" py-3 text-left pl-5">File Name</td>
                                 <td class=" py-3 text-left pl-5">Created At</td>
                                 <td class=" py-3 text-left pl-5">Actions</td>
@@ -139,9 +140,9 @@
                             </thead>
                             <tbody class="">
                                 {#each currentFiles as files,index}
-                                    <tr class="hover:bg-white hover:shadow-lg rounded-xl hover:cursor-pointer transition-all ease-in-out">
-                                        <td class=" py-2  text-center">{index+1}</td>
-                                        <td class=" py-2 text-left pl-5"><input class="transform scale-105 mx-3" type="checkbox">{files.name}</td>
+                                    <tr on:click={()=>{return files.selected=!files.selected}} class="hover:bg-gray-100 hover:shadow-sm rounded-xl hover:cursor-pointer transition-all ease-in-out">
+                                        <!-- <td class=" py-2  text-center">{index+1}</td> -->
+                                        <td class=" py-2 text-left pl-5"><input bind:checked={files.selected} class="accent-blue-800  transform scale-125 mx-3" type="checkbox">{files.name}</td>
                                         <td class=" py-2 text-left pl-5">{files.created_at}</td>
                                         <td class=" py-2 text-left pl-5">
                                             <div class="flex flex-row gap-4 text-2xl">
