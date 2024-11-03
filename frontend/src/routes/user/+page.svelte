@@ -1,12 +1,11 @@
 <script>
     import { onMount } from 'svelte';
     
-    let register=false
     let visible=false
     let full_name='Tanishq Dhote',email='tanishqbakka1@gmail.com'
     let token
     let url='http://localhost:2000/api'
-        
+    let panelButtons=["Dashboard","Shared","Notifications","Bookmarks","Bin","Subscriptions","Help"]        
     
     async function authenticateToken() {
             try {
@@ -44,7 +43,7 @@
     <title>Apex Cloud | {full_name}</title>
     
     <div class="flex flex-col" style="width:100vw;height:100svh">
-        <div class="w-full flex flex-row shadow-xl justify-between">
+        <div class="w-full bg-gray-100 flex flex-row shadow-lg justify-between">
             <div class="flex flex-row gap-4 justify-between items-center">
                 <img class="w-16 pl-3 py-1" src="/logo.png" alt="">
                 
@@ -53,10 +52,31 @@
                     <div class="text-sm">{email}</div>
                 </div>
             </div>
-            <input placeholder="⌕ Search Files" class="w-1/2 bg-gray-200 placeholder-black text-lg my-2 pl-4 rounded-xl">
+            <input placeholder="⌕ Search Files" class="w-1/2 focus:outline-none  placeholder-black text-lg my-2 pl-4 rounded-xl">
             <button class="text-lg my-3 text-white px-4 mx-4 bg-blue-500 transform transition-transform hover:scale-105 hover:bg-blue-600 hover:scale-105 duration-100 rounded-lg">Logout</button>
         </div>
-        <div class="flex flex-grow bg-yellow-500">
+        <div class="flex flex-grow gap-2 justify-around p-2 flex-row bg-gray-100">
+            <div class="w-1/4 py-5 flex flex-col items-left align-left gap-2 px-3 h-full rounded-lg overflow-y-auto">
+                               
+                {#each panelButtons as button}
+                    <button class="focus:bg-blue-200 flex pl-2 py-2 flex-row items-center transform transition-all duration-100 focus:outline-none  hover:scale-105 outline-none focus:scale-105 hover:bg-white rounded-xl">
+                        <img class="" src='{button}.png' alt="">
+                        <div class="pl-3 w-full text-left text-lg">{button}</div>
+                    </button>
+                {/each}
+            </div>
+            <div class="w-3/4 flex flex-col bg-white rounded-lg">
+                <div class="flex flex-row w-full text-xl justify-between py-3 px-2 gap-3 shadow-sm">
+                    <div>
+                        <button class="px-4 text-xl rounded-lg py-1 mr-5 hover:bg-green-400 bg-gray-500 text-white transition-all ease-in-out duration-100">Back</button>
+                        <button class="px-4 text-xl rounded-lg py-1  transition-all bg-gray-500 hover:bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">Upload File</button>
+                        <button class="px-4 text-xl rounded-lg py-1  transition-all bg-gray-500 hover:bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">Create Folder</button>
+              
+                    </div>
+                    <button class="px-4 text-xl rounded-lg py-1  transition-all bg-gray-500 hover:bg-red-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">Delete</button>
+              
+                </div>
 
+            </div>
         </div>
     </div>

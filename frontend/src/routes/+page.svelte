@@ -58,7 +58,7 @@ async function authenticateToken() {
                 if(!data.error)window.location='/user'
                
             } else {
-                alert(data.error || 'Token is invalid');
+                console.log(data.error || 'Your session has expired');
             }
         } catch (error) {
             console.error('Error during token authentication:', error);
