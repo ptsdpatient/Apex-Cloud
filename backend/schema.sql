@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS files CASCADE;
 DROP TABLE IF EXISTS actions CASCADE;
 DROP TABLE IF EXISTS access_shared CASCADE;
 DROP TABLE IF EXISTS activities CASCADE;
+DROP TABLE IF EXISTS otps CASCADE;
+
 
 CREATE TABLE packs(
     id SERIAL PRIMARY KEY,
@@ -16,9 +18,15 @@ CREATE TABLE packs(
 
 CREATE TABLE divisions(
     id SERIAL PRIMARY KEY,
-    division TEXT,
+    division VARCHAR,
     division_address TEXT
 );
+
+CREATE TABLE mountpoints(
+    id SERIAL PRIMARY KEY,
+    mountpoint VARCHAR
+);
+
 
 CREATE TABLE users(
     id SERIAL PRIMARY KEY,
@@ -39,6 +47,8 @@ CREATE TABLE folders(
     id SERIAL PRIMARY KEY,
     folder_name TEXT,
     folder_path TEXT,
+    bookmark INTEGER,
+    is_deleted INTEGER,
     folder_size INTEGER,
     parent INTEGER DEFAULT NULL,
     FOREIGN KEY (parent) REFERENCES folders(id),
@@ -47,10 +57,25 @@ CREATE TABLE folders(
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE subscriptions(
+    id SERIAL PRIMARY KEY,
+    subscription INTEGER,
+    FOREIGN KEY (subscription) REFERENCES packs(id),
+    user_id INTEGER,
+    FOREIGN KEY (users) REFERENCES users(id),
+    mountpoint INTEGER,
+    FOREIGN KEY (mountpoint) REFERENCES mountpoints(id),
+    folder INTEGER,
+    FOREIGN KEY (folder) REFERENCES folders(id)
+);
+
+
 CREATE TABLE files(
     id SERIAL PRIMARY KEY,
     file_name TEXT,
     file_path TEXT,
+    bookmark INTEGER,
+    is_deleted INTEGER,
     file_size INTEGER,
     folder_name INTEGER,
     FOREIGN KEY (folder_name) REFERENCES folders(id),
@@ -93,3 +118,20 @@ CREATE TABLE activities(
     created_at TIMESTAMP
 );
 
+
+CREATE TABLE otps(
+    id SERIAL PRIMARY KEY,
+    otp_code VARCHAR,
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    expires_in TIMESTAMP,
+    expired INTEGER
+);
+
+CREATE TABLE notifications(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    title TEXT,
+    info TEXT
+);

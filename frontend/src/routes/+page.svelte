@@ -133,7 +133,6 @@ onMount(()=>{
                     />Sign in with Google</button>
                 <div class="text-wrap text-sm mx-auto mt-2">Dont have an account? <button on:click={register=!register} class="text-blue-600 font-bold transform hover:scale-105 transition-transform duration-10">Register</button></div>
                 </div>
-
             </div>
         {/if}
         
