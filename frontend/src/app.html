@@ -2,6 +2,11 @@
 <html lang="en">
 	<head>
 		<style>
+			.truncate {
+				white-space: nowrap;       /* Prevents text from wrapping to a new line */
+				overflow: hidden;          /* Hides any overflow */
+				text-overflow: ellipsis;   /* Adds "..." at the end if text overflows */
+			}
 			::-webkit-scrollbar {
 				width: 5px; 
 				height:5px;

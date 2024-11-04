@@ -72,13 +72,12 @@ CREATE TABLE subscriptions(
 
 CREATE TABLE files(
     id SERIAL PRIMARY KEY,
-    file_name TEXT,
-    file_path TEXT,
+    file_name VARCHAR,
     bookmark INTEGER,
     is_deleted INTEGER,
     file_size INTEGER,
-    folder_name INTEGER,
-    FOREIGN KEY (folder_name) REFERENCES folders(id),
+    parent_folder INTEGER,
+    FOREIGN KEY (parent_folder) REFERENCES folders(id),
     created_at TIMESTAMP,
     user_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id)
