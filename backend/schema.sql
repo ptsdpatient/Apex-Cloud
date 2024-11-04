@@ -24,7 +24,8 @@ CREATE TABLE divisions(
 
 CREATE TABLE mountpoints(
     id SERIAL PRIMARY KEY,
-    mountpoint VARCHAR
+    mountpoint VARCHAR,
+    active INTEGER DEFAULT 1
 );
 
 

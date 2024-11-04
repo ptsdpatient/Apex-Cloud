@@ -75,14 +75,14 @@ onMount(()=>{
 
 <title>Apex Cloud | {register?"Register":"Login"}</title>
 
-<div class="flex flex-row justify-center bg-blue-900" style="width:100vw;height:100svh;background-image:url(/bg.jpg);background-size: cover;background-position: center center;background-repeat:no-repeat;">
+<div class="flex flex-row justify-center bg-gradient-to-tr from-indigo-800 via-purple-500 to-blue-600" style="width:100vw;height:100svh;">
     <div class="h-full w-2/3 flex flex-col justify-center" style="user-select:none">
         <img class="w-2/3 mx-auto" alt="icon" src="/icon.png">
     </div>
     <div class="flex flex-col justify-center h-full w-1/3">
 
         {#if register}
-            <div class="bg-gray-200 w-10/12 text-xl flex flex-col justify-around gap-4 px-5 py-5 shadow-xl rounded-xl ">
+            <div class="bg-gray-100 w-10/12 text-xl flex flex-col justify-around gap-4 px-5 py-5 shadow-xl rounded-xl ">
                 <div class="text-center text-4xl my-2">Register </div>
             
                 <input bind:value={username} class="w-11/12 shadow-sm mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="username">        

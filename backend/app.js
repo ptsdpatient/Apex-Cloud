@@ -2,6 +2,7 @@ const express = require('express');
 const pool = require('./database'); 
 require('dotenv').config();
 const app = express();
+const fileUpload = require('express-fileupload');
 // const port =  process.env.PORT;
 const cors = require('cors')
 const jwt = require('jsonwebtoken');
@@ -12,6 +13,8 @@ const https = require('https')
 
 let index=0
 
+const baseUploadDir = path.join(__dirname, 'uploads');
+
 
 // const sslOptions = {
 //     key: fs.readFileSync('/home/apex_live/Apex-Live/certificate/private.key'),
@@ -19,17 +22,22 @@ let index=0
 //     ca: fs.readFileSync('/home/apex_live/Apex-Live/certificate/ca_bundle.crt') // Optional, if you have CA bundle
 // };
 
+
+
+app.use(fileUpload());
 app.use(express.json());
 app.options("*",cors());
 app.use(cors())
 
 
+
+
 function authenticateToken(req, res, next) {
-    console.log("authenticating")
+    // console.log("authenticating")
     const authHeader = req.headers['authorization'];
-    let token = authHeader && authHeader.split(' ')[1];
+    let token = authHeader && authHeader.split(' ')[1];    
     if (!token) {
-        return res.status(401).json({ error: 'Token is missing' }); 
+        return res.status(401).json({ error: 'Token is missing' });
     }
 
     jwt.verify(token, secretKey, (err, user) => {
@@ -53,6 +61,38 @@ app.get('/api/authenticateToken', authenticateToken, (req, res) => {
         done:true,
     });
 });
+
+
+
+app.post('/api/upload',authenticateToken, (req, res) => {
+    const filePath = req.body.filePath; // Assume this is sent as a regular field
+    const fullUploadPath = path.join(baseUploadDir, filePath);
+
+    // Create directory if it doesn't exist
+    fs.mkdirSync(fullUploadPath, { recursive: true });
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send('No files were uploaded.');
+    }
+
+    const uploadedFiles = req.files.files; // Assuming you're sending files as 'files'
+
+    // Handle single file upload
+    if (!Array.isArray(uploadedFiles)) {
+        uploadedFiles.mv(path.join(fullUploadPath, uploadedFiles.name), (err) => {
+            if (err) return res.status(500).send(err);
+        });
+    } else { // Handle multiple files upload
+        uploadedFiles.forEach(file => {
+            file.mv(path.join(fullUploadPath, file.name), (err) => {
+                if (err) return res.status(500).send(err);
+            });
+        });
+    }
+
+    res.status(200).json({ message: 'Files uploaded successfully' });
+});
+
 
 async function alterTableQuery(table, info1, info2, info3, info4, reference) {
     switch (table) {

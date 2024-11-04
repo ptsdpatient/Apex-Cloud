@@ -2,198 +2,58 @@
     import { onMount } from 'svelte';
     
     let visible=false
-    let full_name='Tanishq Dhote',email='tanishqbakka1@gmail.com'
+    let username='Tanishq Dhote',email='tanishqbakka1@gmail.com'
     let token
+    let uploadOpen=false
+    let uploadFolder=false
+    let files=[]
     let url='http://localhost:2000/api'
     let panelButtons=["Dashboard","Shared","Notifications","Bookmarks","Bin","Subscriptions","Help"] 
     let operationButtons=["New Folder","Download","Move Files"]
-    let currentDirectory=["Home","Folder 1","Folder 2","Folder 3","Folder 4","Folder 5"]  
+    let currentDirectory=["Home"]  
     let currentFiles=[
-        {
-            id:0,
-            name:'File1.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:1,
-            name:'File2.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:2,
-            name:'File2.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3wadawdaawdaidhaodaowdaw983982a3uapuwuadawdjwajawdkawkua648124jhkjhdfas8df78231414dj212313.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        },{
-            id:3,
-            name:'File3.xlsx',
-            created_at:'6:53 PM, 3 Nov',
-            bookmark:false,
-            selected:false,
-            moved:false
-        }
+        
     ]   
+    let filePath='/adwadwdaw'
     let currentPanel=0
+
+    async function uploadFiles(){
+        const formData = new FormData();
+        Array.from(files).forEach(file => {
+            formData.append('files', file);
+        });
+
+        formData.append('filePath', filePath);
+
+
+        
+        try {
+            const response = await fetch(`${url}/upload`, {
+                method: 'POST',
+                headers: {
+                        'Authorization': `Bearer ${token}`, 
+                        // 'Content-Type': 'application/json'
+                    },
+                body: formData
+            });
+
+            if (response.ok) {
+                const message = await response.text();
+                alert(message);
+            } else {
+                alert('File upload failed.');
+            }
+        } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred during the upload.');
+        }
+    }
+
+    const handleFilesChange=(event)=>{
+        files = event.target.files; 
+        uploadFiles()
+    };
+
     function logout(){
         localStorage.removeItem("apex_cloud")
         window.location="/"
@@ -231,19 +91,35 @@
     })
     </script>
     
-    <title>Apex Cloud | User</title>
+    <title>Apex Cloud | {username}</title>
     
     <div class="flex flex-col" style="width:100vw;height:100svh">
         <div class="flex flex-grow gap-2 justify-around p-2 flex-row bg-gray-200">
             <div class="w-1/4 px-3 pb-2 flex flex-col items-left align-left gap-2  h-full rounded-lg overflow-y-auto justify-between">
-                <div class="flex flex-row gap-4 items-center overflow-x-hidden">
+                <div class="flex flex-row gap-4 items-center overflow-x-hidden ">
                     <img class="w-10 py-1" src="/logo.png" alt="">                    
                     <div class="flex flex-col items-left  overflow-x-auto">
-                        <div class="text-lg">{full_name}</div>
+                        <div class="text-lg">{username}</div>
                         <div class="text-sm ">{email}</div>
                     </div>
                 </div>   
-                <button class="text-lg rounded-3xl py-2 my-1  transition-all bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-200">Upload Files</button>
+                
+                <div class="w-full text-lg text-white relative rounded-3xl flex flex-row justify-between items-center ">
+                    <div class=" relative flex flex-grow hover:bg-blue-600 rounded-tl-3xl rounded-bl-3xl transition-all duration-300 ease-in-out bg-blue-500 text-center justify-center">
+                        <div class="py-2 text-center">Upload {uploadFolder?"Folder":"Files"}</div>
+                        <input on:change={handleFilesChange} class="w-full  h-full absolute opacity-0" type="file" multiple webkitdirectory={uploadFolder}>
+                    </div>
+                    <button on:click={uploadOpen=!uploadOpen} class="px-5 py-2 rounded-tr-3xl rounded-br-3xl  bg-blue-500 hover:bg-blue-600 duration-300 ease-in-out transition-all group"><div class="transition-all duration-300 ease-in-out transform -scale-x-100 group-hover:rotate-90" >〱</div></button>
+                    <div class="top-full bg-blue-500 text-white my-1 rounded-3xl text-lg absolute {uploadOpen?"flex":"hidden"} flex-col w-full z-40">
+                        <button class="py-2  duration-200 transition-all hover:bg-blue-600 rounded-tr-3xl rounded-tl-3xl" on:click={()=>{uploadOpen=false;uploadFolder=false}}>Upload Files</button>
+                        <button class="py-2  duration-200 transition-all hover:bg-blue-600 rounded-br-3xl rounded-bl-3xl" on:click={()=>{uploadOpen=false;uploadFolder=true}}>Upload Folders</button>
+                    </div>
+                </div>
+
+                
+
+                
+
 
                 {#each panelButtons as button,index}
                     <button on:click={currentPanel=index} class="{currentPanel==index?"bg-white":""} hover:bg-gray-100 focus:bg-white flex pl-5 py-2 flex-row items-center transform transition-all duration-100 focus:outline-none  hover:scale-105 outline-none focus:scale-105  rounded-3xl">
@@ -320,9 +196,9 @@
                                         <td on:click={()=>{return files.selected=!files.selected}} class=" py-2 text-left pl-5"><div class=" inline-block whitespace-nowrap">{files.created_at}</div></td>
                                         <td class=" py-1 text-left pl-5">
                                             <div class="flex flex-row gap-4 text-2xl py-1">
-                                                <button class="hover:bg-yellow-100 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bookmarks.png" alt="bookmark"></button>
-                                                <button class="hover:bg-blue-100 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Share.png" alt="bookmark"></button>
-                                                <button class="hover:bg-red-200 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bin.png" alt="bookmark"></button>
+                                                <button on:click={()=>{alert("bookmark")}} class="hover:bg-yellow-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bookmarks.png" alt="bookmark"></button>
+                                                <button on:click={()=>{alert("share")}} class="hover:bg-blue-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Share.png" alt="bookmark"></button>
+                                                <button on:click={()=>{alert("delete")}} class="hover:bg-red-400 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bin.png" alt="bookmark"></button>
 
                                             </div>                                    
                                         </td>
