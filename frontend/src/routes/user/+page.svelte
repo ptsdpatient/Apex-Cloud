@@ -17,15 +17,7 @@
     let filePath='/adwadwdaw'
     let currentPanel=0
 
-    async function uploadFiles(){
-        const formData = new FormData();
-        Array.from(files).forEach(file => {
-            formData.append('files', file);
-        });
-
-        formData.append('filePath', filePath);
-
-
+    async function uploadFiles(formData){
         
         try {
             const response = await fetch(`${url}/upload`, {
@@ -51,7 +43,24 @@
 
     const handleFilesChange=(event)=>{
         files = event.target.files; 
-        uploadFiles()
+        if(uploadFolder){
+            for (const file of files) {
+                const formData = new FormData();
+                const fullPath = file.webkitRelativePath;
+                const directoryPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
+                alert(directoryPath)
+                formData.append('files', file);
+                formData.append('filePath',`${directoryPath}/`);
+                uploadFiles(formData)                
+            }            
+        }else {
+            const formData = new FormData();
+            Array.from(files).forEach(file => {
+                formData.append('files', file);
+            });
+            formData.append('filePath', filePath);
+            uploadFiles(formData)
+        }
     };
 
     function logout(){

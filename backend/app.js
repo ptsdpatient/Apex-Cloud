@@ -65,24 +65,23 @@ app.get('/api/authenticateToken', authenticateToken, (req, res) => {
 
 
 app.post('/api/upload',authenticateToken, (req, res) => {
-    const filePath = req.body.filePath; // Assume this is sent as a regular field
+    
+    const filePath = req.body.filePath; 
     const fullUploadPath = path.join(baseUploadDir, filePath);
 
-    // Create directory if it doesn't exist
     fs.mkdirSync(fullUploadPath, { recursive: true });
 
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).send('No files were uploaded.');
     }
 
-    const uploadedFiles = req.files.files; // Assuming you're sending files as 'files'
+    const uploadedFiles = req.files.files; 
 
-    // Handle single file upload
     if (!Array.isArray(uploadedFiles)) {
         uploadedFiles.mv(path.join(fullUploadPath, uploadedFiles.name), (err) => {
             if (err) return res.status(500).send(err);
         });
-    } else { // Handle multiple files upload
+    } else { 
         uploadedFiles.forEach(file => {
             file.mv(path.join(fullUploadPath, file.name), (err) => {
                 if (err) return res.status(500).send(err);
@@ -90,7 +89,7 @@ app.post('/api/upload',authenticateToken, (req, res) => {
         });
     }
 
-    res.status(200).json({ message: 'Files uploaded successfully' });
+    // res.status(200).json({ message: 'Files uploaded successfully' });
 });
 
 
