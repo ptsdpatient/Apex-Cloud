@@ -14,7 +14,11 @@
     let currentFiles=[
         
     ]   
-    let filePath='/adwadwdaw'
+    let filePath='/'
+    
+    $: if (currentDirectory.length) {
+        filePath='/'+currentDirectory.join("/")
+    }
     let currentPanel=0
 
     async function uploadFiles(formData){
@@ -29,12 +33,6 @@
                 body: formData
             });
 
-            if (response.ok) {
-                const message = await response.text();
-                alert(message);
-            } else {
-                alert('File upload failed.');
-            }
         } catch (error) {
         console.error('Error:', error);
         alert('An error occurred during the upload.');
@@ -48,9 +46,8 @@
                 const formData = new FormData();
                 const fullPath = file.webkitRelativePath;
                 const directoryPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
-                alert(directoryPath)
                 formData.append('files', file);
-                formData.append('filePath',`${directoryPath}/`);
+                formData.append('filePath',`${filePath}/${directoryPath}/`);
                 uploadFiles(formData)                
             }            
         }else {

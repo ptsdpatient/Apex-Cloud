@@ -79,12 +79,12 @@ app.post('/api/upload',authenticateToken, (req, res) => {
 
     if (!Array.isArray(uploadedFiles)) {
         uploadedFiles.mv(path.join(fullUploadPath, uploadedFiles.name), (err) => {
-            if (err) return res.status(500).send(err);
+            if (err) console.log(err);
         });
     } else { 
         uploadedFiles.forEach(file => {
             file.mv(path.join(fullUploadPath, file.name), (err) => {
-                if (err) return res.status(500).send(err);
+                if (err) console.log(err);
             });
         });
     }
