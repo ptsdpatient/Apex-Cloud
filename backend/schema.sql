@@ -60,10 +60,11 @@ CREATE TABLE folders(
 
 CREATE TABLE subscriptions(
     id SERIAL PRIMARY KEY,
+    sub_name VARCHAR,
     subscription INTEGER,
     FOREIGN KEY (subscription) REFERENCES packs(id),
     user_id INTEGER,
-    FOREIGN KEY (users) REFERENCES users(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     mountpoint INTEGER,
     FOREIGN KEY (mountpoint) REFERENCES mountpoints(id),
     folder INTEGER,

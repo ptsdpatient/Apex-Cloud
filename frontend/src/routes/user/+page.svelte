@@ -10,12 +10,12 @@
     let url='http://localhost:2000/api'
     let panelButtons=["Dashboard","Shared","Notifications","Bookmarks","Bin","Subscriptions","Help"] 
     let operationButtons=["Download","Move Files"]
-    let currentDirectory=["Home"]  
-    let currentFiles=[
-     
-    ]   
+    let currentFiles=[]
+    let subscriptions=['Sub 1','Sub 2','Sub 3']
+    let subscription=subscriptions[0]
+    let currentDirectory=[]
     let filePath='/'+currentDirectory.join("/")
-
+    let showSubscriptions=false
     let folderName=''
     
 
@@ -240,7 +240,18 @@
                     <div class="flex flex-row w-full text-xl justify-between py-2 px-2 gap-3 shadow-sm">
                         <div class="flex flex-row overflow-x-hidden">
                             <button on:click={previousFolder} class="px-4 text-xl rounded-2xl py-1 mr-2 hover:bg-gray-100 text-black transition-all ease-in-out duration-100">←</button>
-                            <div class="flex flex-row text-lg overflow-x-auto">
+                            <div class="flex flex-row text-xl overflow-x-auto items-center">                                
+                                
+                                <div class="items-center relative align-center flex flex-col  whitespace-nowrap overflow-y-auto">
+                                    <button on:click={()=>{showSubscriptions=!showSubscriptions}} class="transform hover:bg-opacity-50 hover:bg-gray-100  px-2 py-1 transition-all duration-100 ease-in-out rounded-xl flex flex-row items-center justify-between gap-3 group"><div>{subscription}</div ><div class="transition-all duration-300 ease-in-out transform -scale-x-100 {!showSubscriptions?"":"rotate-90"}">〱</div></button>
+                                    <div class="absolute flex-col justify-around gap-2 mt-3 top-0 left-0 {showSubscriptions?"flex":"hidden"} overflow-y-hidden" style="z-index:40">
+                                        {#each subscriptions as sub}
+                                            <button on:click={()=>{subscription=sub;showSubscriptions=false}} class="transform hover:bg-opacity-50 hover:bg-gray-100  px-2 py-1 transition-all duration-100 ease-in-out rounded-xl flex flex-row items-center justify-between gap-3 group">{sub}</button>
+                                        {/each}
+                                    </div>                                    
+                                </div>
+                             
+
                                 {#each currentDirectory as folder,index}
                                     {#if currentDirectory.length>4 && (index>1 && index <currentDirectory.length-1)}
                                         <div class="items-center align-center flex flex-row">
@@ -250,7 +261,7 @@
                                     {:else}
                                         <div class="items-center align-center flex flex-row inline-block whitespace-nowrap">
                                             <button on:click={()=>{gotoFolder(index)}} class="transform hover:bg-opacity-50 hover:bg-gray-100  px-2 py-1 transition-all duration-100 ease-in-out rounded-xl">{folder}</button>
-                                            <pre>/ </pre>
+                                            <pre><div class="transition-all duration-300 ease-in-out transform -scale-x-100">〱</div></pre>
                                         </div>
                                     {/if}
 
@@ -265,9 +276,9 @@
                             <thead class="text-black bg-white my-4">
                               <tr class="shadow-sm">
                                 <!-- <td class=" py-3  text-center">#</td> -->
-                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-3/5 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out "><button class="w-full flex flex-row justify-between pr-5"><div>File Name</div><img src="sort.png" alt="sort"></button></td>
-                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-1/5 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><button class="w-full flex flex-row justify-between pr-5"><div>Last Modified</div><img src="sort.png" alt="sort"></button></td>
-                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-1/5 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><div>Actions</div></td>
+                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-6/12 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out "><button class="w-full flex flex-row justify-between pr-5 gap-4"><div>File Name</div><img src="sort.png" alt="sort"></button></td>
+                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-3/12 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><button class="w-full flex flex-row justify-between pr-5 gap-4"><div>Last Modified</div><img src="sort.png" alt="sort"></button></td>
+                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-3/12 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><div>Actions</div></td>
                                 <!-- <td class=" py-3 text-left pl-5">Actions</td> -->
                               </tr>
                             </thead>
