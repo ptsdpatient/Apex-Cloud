@@ -9,16 +9,16 @@
     let files=[]
     let url='http://localhost:2000/api'
     let panelButtons=["Dashboard","Shared","Notifications","Bookmarks","Bin","Subscriptions","Help"] 
-    let operationButtons=["New Folder","Download","Move Files"]
+    let operationButtons=["Download","Move Files"]
     let currentDirectory=["Home"]  
     let currentFiles=[
-        
+     
     ]   
-    let filePath='/'
+    let filePath='/'+currentDirectory.join("/")
+
+    let folderName=''
     
-    $: if (currentDirectory.length) {
-        filePath='/'+currentDirectory.join("/")
-    }
+
     let currentPanel=0
 
     async function uploadFiles(formData){
@@ -28,7 +28,6 @@
                 method: 'POST',
                 headers: {
                         'Authorization': `Bearer ${token}`, 
-                        // 'Content-Type': 'application/json'
                     },
                 body: formData
             });
@@ -64,6 +63,95 @@
         localStorage.removeItem("apex_cloud")
         window.location="/"
     }
+
+
+    async function getFiles() {
+            try {
+                const response = await fetch(`${url}/getFiles`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`, 
+                        'Content-Type': 'application/json'
+                    }, body: JSON.stringify({ 
+                        path:filePath,                       
+                    })
+                });
+    
+                const data = await response.json();
+                
+            
+                currentFiles = data.map(file => {
+                    return {
+                        ...file, 
+                        selected:false,
+                        active:true
+                    };
+                });
+
+                if(currentDirectory.length<15){
+                    for(let i=0;i<15;i++){
+                        currentFiles=[...currentFiles,{name:"",active:false,isDirectory:false}]
+                    }
+                }
+
+            } catch (error) {
+                // console.error('Error during token authentication:', error);
+                // alert("An error occurred while authenticating the token.");
+            }
+    }
+
+    function previousFolder(){
+        if(currentDirectory.length>1){
+            currentDirectory=currentDirectory.slice(0,-1 );
+            filePath='/'+currentDirectory.join("/")
+            getFiles()
+        }
+    }
+
+    function gotoFolder(index){
+        // if(index<1) return
+        currentDirectory = currentDirectory.slice(0, index+1);
+        filePath='/'+currentDirectory.join("/")
+        getFiles()
+    }
+
+    function openFolder(file){
+        currentDirectory=[...currentDirectory,file.name]
+        filePath='/'+currentDirectory.join("/")
+        getFiles()
+    }
+
+    async function createFolder() {
+            try {
+                const response = await fetch(`${url}/createFolder`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`, 
+                        'Content-Type': 'application/json'
+                    },body:JSON.stringify({
+                        path:filePath
+                    })
+                });
+    
+                const data = await response.json();
+    
+                if (response.ok) {
+                    console.log('Authenticated user:', data);
+                    if(data.error)window.location='/'
+                   
+                } else {
+                    alert(data.error || 'Token is invalid');
+                    window.location='/'
+                }
+            } catch (error) {
+                console.error('Error during token authentication:', error);
+                alert("An error occurred while authenticating the token.");
+            }
+    }
+
+
+
+
     async function authenticateToken() {
             try {
                 const response = await fetch(`${url}/authenticateToken`, {
@@ -93,7 +181,8 @@
     
     onMount(()=>{
         token=localStorage.getItem("apex_cloud")
-        authenticateToken()
+        // authenticateToken()
+        getFiles()
     })
     </script>
     
@@ -150,17 +239,17 @@
                     
                     <div class="flex flex-row w-full text-xl justify-between py-2 px-2 gap-3 shadow-sm">
                         <div class="flex flex-row overflow-x-hidden">
-                            <button class="px-4 text-xl rounded-2xl py-1 mr-2 hover:bg-gray-100 text-black transition-all ease-in-out duration-100">←</button>
+                            <button on:click={previousFolder} class="px-4 text-xl rounded-2xl py-1 mr-2 hover:bg-gray-100 text-black transition-all ease-in-out duration-100">←</button>
                             <div class="flex flex-row text-lg overflow-x-auto">
                                 {#each currentDirectory as folder,index}
                                     {#if currentDirectory.length>4 && (index>1 && index <currentDirectory.length-1)}
                                         <div class="items-center align-center flex flex-row">
-                                            <button class="transform hover:bg-opacity-50 hover:bg-gray-100 px-2 py-1 transition-all duration-100 ease-in-out rounded-xl">.</button>
+                                            <button on:click={()=>{gotoFolder(index)}} class="transform hover:bg-opacity-50 hover:bg-gray-100 px-2 py-1 transition-all duration-100 ease-in-out rounded-xl">.</button>
                                         </div>                                  
                                            
                                     {:else}
                                         <div class="items-center align-center flex flex-row inline-block whitespace-nowrap">
-                                            <button class="transform hover:bg-opacity-50 hover:bg-gray-100  px-2 py-1 transition-all duration-100 ease-in-out rounded-xl">{folder}</button>
+                                            <button on:click={()=>{gotoFolder(index)}} class="transform hover:bg-opacity-50 hover:bg-gray-100  px-2 py-1 transition-all duration-100 ease-in-out rounded-xl">{folder}</button>
                                             <pre>/ </pre>
                                         </div>
                                     {/if}
@@ -168,38 +257,41 @@
                                 {/each}
                             </div>
                         </div>
-                        <button class="px-4 mr-4 text-lg inline-block whitespace-nowrap rounded-2xl py-1  transition-all bg-gray-500 hover:bg-red-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">Delete Folder</button>
+                        <button class="px-4 mr-4 text-lg inline-block whitespace-nowrap rounded-2xl py-1  transition-all bg-gray-500 hover:bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">New Folder</button>
                     </div>
 
-                    <div class="bg-white flex flex-grow overflow-y-auto" style="height:50vh;">
+                    <div class="bg-white flex flex-grow overflow-y-auto" style="height:0vh;">
                         <table class="w-full border-collapse text-xl overflow-y-auto">
                             <thead class="text-black bg-white my-4">
                               <tr class="shadow-sm">
                                 <!-- <td class=" py-3  text-center">#</td> -->
-                                <td class=" py-3 text-left pl-5 w-3/5 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out "><button class="w-full flex flex-row justify-between pr-5"><div>File Name</div><img src="sort.png" alt="sort"></button></td>
-                                <td class=" py-3 text-left pl-5 w-1/5 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><button class="w-full flex flex-row justify-between pr-5"><div>Created At</div><img src="sort.png" alt="sort"></button></td>
-                                <td class=" py-3 text-left pl-5 w-1/5 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><div>Actions</div></td>
+                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-3/5 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out "><button class="w-full flex flex-row justify-between pr-5"><div>File Name</div><img src="sort.png" alt="sort"></button></td>
+                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-1/5 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><button class="w-full flex flex-row justify-between pr-5"><div>Last Modified</div><img src="sort.png" alt="sort"></button></td>
+                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-1/5 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><div>Actions</div></td>
                                 <!-- <td class=" py-3 text-left pl-5">Actions</td> -->
                               </tr>
                             </thead>
                             <tbody class="">
                                 {#each currentFiles as files,index}
-                                    <tr  class="hover:bg-gray-100 hover:shadow-sm rounded-xl hover:cursor-pointer transition-all ease-in-out ">
-                                        <td on:click={()=>{return files.selected=!files.selected}} class=" py-4 text-left flex flex-row  my-auto">
+                                    <tr class=" {files.selected?"bg-blue-100":"hover:bg-gray-100"} {files.active?"hover:cursor-pointer":"opacity-0"} hover:shadow-sm rounded-xl  transition-all ease-in-out" >
+                                        <td class=" text-left flex flex-row  my-auto">
                                             <input bind:checked={files.selected} class="accent-blue-600 hover:cursor-pointer transform scale-150 mx-3 mr-5" type="checkbox">
-                                            <div class="inline-block whitespace-nowrap overflow-x-hidden flex flex-grow" style="width: 150px;">
-                                                {#if files.name.length > 35}
-                                                    {#if files.name.includes('.')}
-                                                        {files.name.substring(0, 30) + '...' + files.name.split('.').pop()}
+                                            <button on:click={()=>{(!files.isDirectory)?files.selected=!files.selected:openFolder(files)}} class="flex py-4 flex-row items-center w-full">
+                                                <img class="my-auto mr-2" style="width:24px;height:24px;" src={files.isDirectory?"folder.png":"file.png"} alt={files.isDirectory?"Folder":"File"}>
+                                                <div class="inline-block whitespace-nowrap overflow-x-hidden flex" style="width: 100%">
+                                                    {#if files.name.length > 35}
+                                                        {#if files.name.includes('.')}
+                                                            {files.name.substring(0, 30) + '...' + files.name.split('.').pop()}
+                                                        {:else}
+                                                            {files.name}
+                                                        {/if}
                                                     {:else}
                                                         {files.name}
                                                     {/if}
-                                                {:else}
-                                                    {files.name}
-                                                {/if}
-                                            </div>
+                                                </div>
+                                            </button>
                                         </td>
-                                        <td on:click={()=>{return files.selected=!files.selected}} class=" py-2 text-left pl-5"><div class=" inline-block whitespace-nowrap">{files.created_at}</div></td>
+                                        <td on:click={()=>{(!files.isDirectory)?files.selected=!files.selected:openFolder(files)}} class=" py-2 text-left pl-5"><div class=" inline-block whitespace-nowrap">{files.created_at}</div></td>
                                         <td class=" py-1 text-left pl-5">
                                             <div class="flex flex-row gap-4 text-2xl py-1">
                                                 <button on:click={()=>{alert("bookmark")}} class="hover:bg-yellow-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bookmarks.png" alt="bookmark"></button>

@@ -30,10 +30,23 @@ app.options("*",cors());
 app.use(cors())
 
 
-
+function listFilesAndFolders(dir) {
+    return new Promise((resolve, reject) => {
+        fs.readdir(dir, { withFileTypes: true }, (err, entries) => {
+            if (err) {
+                return reject(err);
+            }
+            const filesAndFolders = entries.map(entry => ({
+                name: entry.name,
+                isDirectory: entry.isDirectory()
+            }));
+            resolve(filesAndFolders);
+        });
+    });
+}
 
 function authenticateToken(req, res, next) {
-    // console.log("authenticating")
+    console.log("authenticating")
     const authHeader = req.headers['authorization'];
     let token = authHeader && authHeader.split(' ')[1];    
     if (!token) {
@@ -62,7 +75,19 @@ app.get('/api/authenticateToken', authenticateToken, (req, res) => {
     });
 });
 
-
+app.post('/api/getFiles',authenticateToken,(req,res)=>{
+    console.log('getting files')
+    const {path} = req.body
+    console.log(path)
+    listFilesAndFolders(`uploads/${path}`)
+        .then(filesAndFolders => {
+            console.log(filesAndFolders)
+            res.status(200).json(filesAndFolders)
+        })
+        .catch(err =>{
+            console.error(err)
+        });
+})
 
 app.post('/api/upload',authenticateToken, (req, res) => {
     
