@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS packs CASCADE;
 DROP TABLE IF EXISTS divisions CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS folders CASCADE;
@@ -7,14 +6,9 @@ DROP TABLE IF EXISTS actions CASCADE;
 DROP TABLE IF EXISTS access_shared CASCADE;
 DROP TABLE IF EXISTS activities CASCADE;
 DROP TABLE IF EXISTS otps CASCADE;
-
-
-CREATE TABLE packs(
-    id SERIAL PRIMARY KEY,
-    pack TEXT,
-    storage INTEGER,
-    cost TEXT
-);
+DROP TABLE IF EXISTS mountpoints CASCADE;
+DROP TABLE IF EXISTS subscriptions CASCADE;
+DROP TABLE IF EXISTS notifications CASCADE;
 
 CREATE TABLE divisions(
     id SERIAL PRIMARY KEY,
@@ -38,9 +32,7 @@ CREATE TABLE users(
     last_login TEXT,
     division INTEGER,
     storage INTEGER,
-    FOREIGN KEY (division) REFERENCES divisions(id),
-    pack INTEGER,
-    FOREIGN KEY (pack) REFERENCES packs(id)
+    FOREIGN KEY (division) REFERENCES divisions(id)
 );
 
 
@@ -61,14 +53,11 @@ CREATE TABLE folders(
 CREATE TABLE subscriptions(
     id SERIAL PRIMARY KEY,
     sub_name VARCHAR,
-    subscription INTEGER,
-    FOREIGN KEY (subscription) REFERENCES packs(id),
+    storage INTEGER,
     user_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id),
     mountpoint INTEGER,
-    FOREIGN KEY (mountpoint) REFERENCES mountpoints(id),
-    folder INTEGER,
-    FOREIGN KEY (folder) REFERENCES folders(id)
+    FOREIGN KEY (mountpoint) REFERENCES mountpoints(id)    
 );
 
 

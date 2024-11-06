@@ -6,7 +6,7 @@ const fileUpload = require('express-fileupload');
 // const port =  process.env.PORT;
 const cors = require('cors')
 const jwt = require('jsonwebtoken');
-const secretKey='apex_live_auth'
+const secretKey='apex_cloud_auth'
 const fs = require('fs');
 const path = require('path');
 const https = require('https')
@@ -30,6 +30,38 @@ app.options("*",cors());
 app.use(cors())
 
 
+async function getFolderSize(folderName) {
+    let totalSize = 0;  
+    const folderPath = path.join(baseUploadDir, folderName);
+
+    async function calculateSize(currentPath) {
+        try {
+            const stats = await fs.promises.stat(currentPath);
+            if (stats.isDirectory()) {
+                const files = await fs.promises.readdir(currentPath);
+                for (const file of files) {
+                    const filePath = path.join(currentPath, file);
+                    totalSize += await calculateSize(filePath);  
+                }
+            } else {
+                totalSize += stats.size;  
+            }
+        } catch (err) {
+            console.error(`Error accessing ${currentPath}:`, err);
+        }
+        return totalSize;
+    }
+
+    await calculateSize(folderPath);
+
+    const readableSizeInGB = (totalSize / (1024 ** 3)).toFixed(totalSize==0?0:2);  
+
+    console.log('Total size for folder:', folderPath, 'is', readableSizeInGB + ' GB');
+    return readableSizeInGB;
+}
+  
+
+
 function listFilesAndFolders(dir) {
     return new Promise((resolve, reject) => {
         fs.readdir(dir, { withFileTypes: true }, (err, entries) => {
@@ -46,7 +78,6 @@ function listFilesAndFolders(dir) {
 }
 
 function authenticateToken(req, res, next) {
-    console.log("authenticating")
     const authHeader = req.headers['authorization'];
     let token = authHeader && authHeader.split(' ')[1];    
     if (!token) {
@@ -57,31 +88,28 @@ function authenticateToken(req, res, next) {
         if (err) {
             return res.status(403).json({ error: 'Token is invalid' }); 
         }
-        req.admin= user.isAdmin
-        req.user = user.name; 
+        req.id = user.userId; 
         req.error = false;
         next(); 
     });
 }
 
 app.get('/api/authenticateToken', authenticateToken, (req, res) => {
-    // console.log(req.user)
     res.status(200).json({ 
         message: 'Token is valid', 
         error: req.error, 
         name:req.user,
-        isAdmin:req.admin,
         done:true,
     });
 });
 
 app.post('/api/getFiles',authenticateToken,(req,res)=>{
-    console.log('getting files')
+    // console.log('getting files')
     const {path} = req.body
-    console.log(path)
+    // console.log(path)
     listFilesAndFolders(`uploads/${path}`)
         .then(filesAndFolders => {
-            console.log(filesAndFolders)
+            // console.log(filesAndFolders)
             res.status(200).json(filesAndFolders)
         })
         .catch(err =>{
@@ -118,190 +146,28 @@ app.post('/api/upload',authenticateToken, (req, res) => {
 });
 
 
-async function alterTableQuery(table, info1, info2, info3, info4, reference) {
-    switch (table) {
-        case 'cameras': {
-            console.log(`${info1}`);
-            const trimmed_poll_station = info1.trim();
-            
-            const poll_id_result = await pool.query(
-                'SELECT id FROM polling_stations WHERE polling_station = $1',
-                [trimmed_poll_station]
-            );
-
-            if (poll_id_result.rows.length === 0) {
-                throw new Error(`No polling station found for ${info1}`);
-            }
-
-            const poll_id = poll_id_result.rows[0].id;
-            console.log('Polling station ID:', poll_id);
-
-            const query = `
-                UPDATE ${table}
-                SET serial_number = $1, PS = $2
-                WHERE id = $3
-            `;
-
-            return { query, params: [info1, poll_id, reference] };
-        };
-        case 'polling_stations': {
-
-            console.log(`${info1}`);
-            const trimmed_taluka = info3.trim();
-            const trimmed_supervisor=info4.trim();
-
-            const taluka_id = await pool.query(
-                'SELECT id FROM taluka WHERE taluka = $1',
-                [trimmed_taluka]
-            );
-            
-            const supervisor_id = await pool.query(
-                'SELECT id FROM employees WHERE full_name = $1',
-                [trimmed_supervisor]
-            )
-
-            if (taluka_id.rows.length === 0 || supervisor_id.rows.length === 0) {
-                throw new Error(`No polling station found for ${info3} or ${info4}`);
-            }
-
-            
-            const query = `
-                UPDATE ${table}
-                SET polling_station = $1, polling_address = $2, taluka = $3, supervisor=$4 
-                WHERE id = $5
-            `;
-
-            return { query, params: [info1,info2 ,taluka_id.rows[0].id , supervisor_id.rows[0].id, reference] };
-        }
-        case 'employees': {
-         
-            
-            const query = `
-                UPDATE ${table}
-                SET full_name = $1, phone_number = $2, is_admin = $3
-                WHERE id = $4
-            `;
-
-            return { query, params: [info1,info2 ,info3?1:0 , reference] };
-        }
-        case 'taluka': {
-         
-            
-            const query = `
-                UPDATE ${table}
-                SET taluka = $1
-                WHERE id = $2
-            `;
-
-            return { query, params: [info1, reference] };
-        }
-        case 'constituencies':{
-            const query = `
-            UPDATE ${table}
-            SET ac_number = $1, ac_name=$2 
-            WHERE id = $3
-        `;
-
-        return { query, params: [info1, info2, reference] };
-        }
-    }
-}
-
-app.post('/api/editItem', authenticateToken, async (req, res) => {
-    const { info1, info2, info3, info4, reference, table } = req.body;
-
-    try {
-        // Get the query and parameters
-        const { query, params } = await alterTableQuery(table, info1, info2, info3, info4, reference);
-
-
-        // Execute the query
-        const { rows } = await pool.query(query, params);
-
-        res.status(200).json({ done: true, info: table });
-        console.log('Table altered : ' +table)
-    } catch (err) {
-        console.error('error:', err.message);
-        res.status(500).json({ done: false, message: err.message });
-    }
-});
-
-
-app.post('/api/deleteItem',authenticateToken,async (req,res)=>{
-    const {table,reference} =req.body
+app.get('/api/getSubscriptions',authenticateToken,async (req,res)=>{
+    console.log('getting subscriptions for : ',req.id)
     try{
-        const query=`
-            DELETE FROM ${table}
-            WHERE id = $1
-        `
-        const { rows } = await pool.query(query, [reference]);
-        res.status(200).json({ done: true, info: table });
-        console.log('[-] Item deleted : ' +table)
-
-    }catch(err){
-        console.log("Error occured : "+err)
-    }
-})
-
-
-
-app.get('/api/getEmployees',authenticateToken,async (req,res)=>{
-    try{
-        const { rows } = await pool.query('SELECT id, full_name, is_admin,phone_number FROM employees');
-        res.status(200).json(rows);
-    }catch(err){
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-})
-
-app.get('/api/getTalukas',authenticateToken,async (req,res)=>{
-    try{
-        const { rows } = await pool.query('SELECT id, taluka FROM taluka');
-
-        res.status(200).json(rows);
-    }catch(err){
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-})
-
-
-app.get('/api/getCameras',authenticateToken,async (req,res)=>{
-    try{
-        const query = `        
-            SELECT 
-                cameras.id AS "camera_id",
-                cameras.serial_number AS "serial_number",
-                polling_stations.polling_station_name AS "polling_station_name",
-                polling_stations.polling_address AS "polling_address",
-                polling_stations.id AS "polling_id",
-                employees.full_name AS "supervisor_name",
-                employees.phone_number AS "supervisor_phone",
-                operator_employee.full_name AS "operator_name",  
-                operator_employee.phone_number AS "operator_phone",  
-                constituencies.ac_name AS "ac_name",
-                constituencies.ac_number AS "ac_number"
-            FROM cameras
-            LEFT JOIN polling_stations ON cameras.PS = polling_stations.id
-            LEFT JOIN employees ON polling_stations.supervisor = employees.id  
-            LEFT JOIN employees operator_employee ON cameras.operator = operator_employee.id  
-            LEFT JOIN constituencies ON polling_stations.constituency = constituencies.id;
-        `;
-
- 
+        const { rows } = await pool.query('SELECT id, sub_name, mountpoint, storage FROM subscriptions WHERE user_id = $1;',[req.id]);
         
-        const { rows } = await pool.query(query);
-        const modifiedRows = rows.map(row => ({
-            ...row,
-            muted:true,
-            visible: false 
+        const response = await Promise.all(rows.map(async row => {
+            const { rows: mountPointRows } = await pool.query('SELECT mountpoint FROM mountpoints WHERE id = $1;', [row.mountpoint]);
+            const mountpoint = mountPointRows.length > 0 ? mountPointRows[0].mountpoint : 'Unknown';
+            return {
+                sub_name: row.sub_name,
+                storage: row.storage,
+                usage: await getFolderSize(`/${mountpoint}/${row.id}/`)
+            };
         }));
 
-        res.status(200).json(modifiedRows);
-
+        res.status(200).json(response);
     }catch(err){
         res.status(500).json({ error: 'Internal Server Error' });
     }
 })
+
+
 
 
 app.get('/api/',(req,res)=>{
@@ -559,9 +425,9 @@ app.post('/api/login', async (req, res) => {
 
         if (password === storedPassword) {
             const token = jwt.sign({
-                 userId: rows[0].id, 
-                 name:name,
-                 isAdmin: (rows[0].is_admin !== 0) }, 
+                    userId: rows[0].id, 
+                    name:name,
+                }, 
                  secretKey, { expiresIn: '6h' }
                 );
             console.log('-> Login request successful with:', name);
@@ -572,7 +438,6 @@ app.post('/api/login', async (req, res) => {
                 },
                 full_name: name,
                 token:token,
-                admin: rows[0].is_admin !== 0
             });
         } else {
             return res.status(401).json({ error: 'Invalid name or password' });
