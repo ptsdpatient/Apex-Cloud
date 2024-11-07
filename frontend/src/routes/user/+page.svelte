@@ -6,7 +6,7 @@
     let token
     let uploadOpen=false
     let uploadFolder=false
-    let purchaseStorageSpace=1
+    
     let files=[]
     let url='http://localhost:2000/api'
     let panelButtons=["Dashboard","Shared","Notifications","Bookmarks","Bin","Subscriptions","Help"] 
@@ -21,10 +21,35 @@
     let captchaImage='';
     let currentPanel=5
 
+    let purchaseStorageSpace=1
+    let purchaseFullName=''
+    let purchaseMobile=''
+    let purchaseEmail=''
+    let purchaseUPI=''
+    let purchaseCaptcha=''
+    
+
 
     async function confirmCaptcha(){
         try{
+            const response = await fetch(`${url}/checkout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`, 
+                        'Content-Type': 'application/json'
+                    }, body: JSON.stringify({ 
+                        solution:purchaseCaptcha,
+                        storage:purchaseStorageSpace,
+                        name: purchaseFullName,
+                        mobile: purchaseMobile,
+                        email: purchaseEmail,
+                        upi: purchaseUPI
+                })
+            });
 
+            const data = await response.json();
+
+            alert(data)
         }catch(err){
 
         }
@@ -400,7 +425,7 @@
                 <div class="w-3/4 flex p-2 flex-col  " style="height:100svh;">
                         <div class="w-full h-full flex flex-row bg-white rounded-2xl p-2 flex-grow overflow-y-auto" style="height:90vh">
                             <div class="w-1/2 p-4 gap-4 flex-col flex flex-col h-full ">
-                                <div class="text-4xl my-3">Get storage at <br>Apex Cloud</div>
+                                <div class="text-4xl mb-3">Get storage at <br>Apex Cloud</div>
                                 <div class="flex flex-grow flex-col gap-4">
                                     <div class="text-base">Our payment system relies on custom made receipt confirmation technology, please fill in the correct details in the following form, if the information fails to match in the receipt or on our end we will take actions. for more help reach us out here <a class="text-blue-400" href="/help">help.</a> </div>
                                     <div class="text-base mb-5">Contact us if you encounter any issue or problem we will reach out to you immediately <br> +91 8459291118  </div>   
@@ -412,24 +437,24 @@
                             </div>
                             <div class="w-1/2 h-full text-xl px-5">
                                 <form on:submit={confirmCaptcha} class="flex h-full flex-col gap-2">
-                                    <div class="text-3xl mt-2 mb-3">Kindly fill out the following details</div>
-                                        <input required placeholder="full name ex. Tanishq Dhote" class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
-                                        <input required placeholder="mobile number ex. 8459291118" class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
-                                        <input required placeholder="email id ex. tanishqssg4@gmail.com" class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="email">
-                                        <input required placeholder="upi id ex.tanishqssg4-1@oksbi" class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
+                                    <div class="text-2xl mt-2 mb-1 pl-3">Please fill out the following details</div>
+                                        <input required placeholder="full name ex. Tanishq Dhote" bind:value={purchaseFullName} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
+                                        <input required placeholder="mobile number ex. 8459291118" bind:value={purchaseMobile} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
+                                        <input required placeholder="email id ex. tanishqssg4@gmail.com" bind:value={purchaseEmail} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="email">
+                                        <input required placeholder="upi id ex.tanishqssg4-1@oksbi" bind:value={purchaseUPI} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
                                         
                                     <div class="flex flex-row justify-between gap-2 w-full items-center my-3">
                                         <div>I want</div>
                                         <input bind:value={purchaseStorageSpace}  placeholder="desired storage space ex.1GB,3GB etc" class="border border-1 bg-gray-100 flex flex-grow border-gray-100 py-1 rounded-lg focus:outline-none " max="100" min="1" type="range">
                                         <div class="">{purchaseStorageSpace} GB of space</div>
                                     </div>
-                                    <div>Your subscription would cost you <br> {purchaseStorageSpace*12} Rs per year</div>
+                                    <div>Your subscription would cost<br> {purchaseStorageSpace*12} Rs per year</div>
                                     
                                     <div class="w-full flex flex-row justify-around items-center">
                                         <div>
                                             {@html captchaImage}
                                         </div>
-                                        <input class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " placeholder="Enter Captcha" required type="text">
+                                        <input bind:value={purchaseCaptcha} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " placeholder="Enter Captcha" required type="text">
                                     </div>
                                     <button type="submit" class="text-lg py-2 my-auto text-white px-4 transition-all bg-gray-400 hover:bg-green-500 duration-200 rounded-xl">Continue</button>
                                 </form>

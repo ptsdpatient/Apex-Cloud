@@ -124,6 +124,25 @@ app.post('/api/getFiles',authenticateToken,async (req,res)=>{
         });
 })
 
+app.post('/api/checkout', async (req, res) => {
+    const { solution,storage,name,email,mobile,upi } = req.body;
+    const result = await pool.query(
+        'SELECT * FROM captchas WHERE solution = $1 AND expiry > NOW() ORDER BY id DESC LIMIT 1',
+        [solution]
+    );
+
+    if (result.rows.length === 0) {
+        return res.status(400).send('Invalid or expired CAPTCHA');
+    }
+    const upiUrl = `upi://pay?pa=tanishqssg4-1@oksbi&pn=ETC-24-Tanishq%20Dhote&aid=uGICAgMDs5oWbKA&am=${storage}`;
+
+
+    res.status(200).send({
+        qr:"",
+        payment_id:""
+    });
+});
+
 
 app.get('/api/captcha', async (req, res) => {
     console.log("captcha")
