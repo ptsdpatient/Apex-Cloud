@@ -125,3 +125,19 @@ CREATE TABLE notifications(
     title TEXT,
     info TEXT
 );
+
+CREATE TABLE captchas(
+    id SERIAL PRIMARY KEY,
+    solution VARCHAR(10),
+    expiry TIMESTAMP
+
+);
+
+CREATE TABLE payments(
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    receipt TEXT,
+    storage INTEGER,
+    amount INTEGER
+);

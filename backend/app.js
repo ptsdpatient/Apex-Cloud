@@ -1,5 +1,6 @@
 const express = require('express');
 const pool = require('./database'); 
+const svgCaptcha = require('svg-captcha');
 require('dotenv').config();
 const app = express();
 const fileUpload = require('express-fileupload');
@@ -31,32 +32,31 @@ app.use(cors())
 
 
 async function getFolderSize(folderName) {
-    let totalSize = 0;  
     const folderPath = path.join(baseUploadDir, folderName);
 
     async function calculateSize(currentPath) {
+        let size = 0;
         try {
             const stats = await fs.promises.stat(currentPath);
             if (stats.isDirectory()) {
                 const files = await fs.promises.readdir(currentPath);
                 for (const file of files) {
                     const filePath = path.join(currentPath, file);
-                    totalSize += await calculateSize(filePath);  
+                    size += await calculateSize(filePath);  // accumulate size within this directory
                 }
             } else {
-                totalSize += stats.size;  
+                size += stats.size;  // accumulate file size
             }
         } catch (err) {
             console.error(`Error accessing ${currentPath}:`, err);
         }
-        return totalSize;
+        return size;
     }
 
-    await calculateSize(folderPath);
+    const totalSize = await calculateSize(folderPath);
 
-    const readableSizeInGB = (totalSize / (1024 ** 3)).toFixed(totalSize==0?0:2);  
-
-    console.log('Total size for folder:', folderPath, 'is', readableSizeInGB + ' GB');
+    const readableSizeInGB = (totalSize / (1024 ** 3)).toFixed(totalSize === 0 ? 0 : 2);  
+    // console.log('Total size for folder:', folderPath, 'is', readableSizeInGB + ' GB');
     return readableSizeInGB;
 }
   
@@ -76,6 +76,11 @@ function listFilesAndFolders(dir) {
         });
     });
 }
+
+
+
+
+
 
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
@@ -103,19 +108,36 @@ app.get('/api/authenticateToken', authenticateToken, (req, res) => {
     });
 });
 
-app.post('/api/getFiles',authenticateToken,(req,res)=>{
-    // console.log('getting files')
-    const {path} = req.body
-    // console.log(path)
-    listFilesAndFolders(`uploads/${path}`)
+app.post('/api/getFiles',authenticateToken,async (req,res)=>{
+    const {path,sub} = req.body
+    const {rows } = await pool.query(`SELECT s.id as id, m.mountpoint as mountpoint
+        FROM subscriptions s
+        JOIN mountpoints m ON s.mountpoint = m.id
+        WHERE s.sub_name = $1;`,[sub])
+
+    listFilesAndFolders(`uploads/${rows[0].mountpoint}/${rows[0].id}/${path}`)
         .then(filesAndFolders => {
-            // console.log(filesAndFolders)
             res.status(200).json(filesAndFolders)
         })
         .catch(err =>{
             console.error(err)
         });
 })
+
+
+app.get('/api/captcha', async (req, res) => {
+    console.log("captcha")
+    const captcha = svgCaptcha.create();
+    const expiry = new Date(Date.now() + 15 * 60 * 1000); 
+    await pool.query(
+        'INSERT INTO captchas (solution, expiry) VALUES ($1, $2);',
+        [captcha.text, expiry,1]
+    );
+
+    res.status(200).send({captcha:captcha.data});
+
+});
+
 
 app.post('/api/upload',authenticateToken, (req, res) => {
     
@@ -147,7 +169,7 @@ app.post('/api/upload',authenticateToken, (req, res) => {
 
 
 app.get('/api/getSubscriptions',authenticateToken,async (req,res)=>{
-    console.log('getting subscriptions for : ',req.id)
+    // console.log('getting subscriptions for : ',req.id)
     try{
         const { rows } = await pool.query('SELECT id, sub_name, mountpoint, storage FROM subscriptions WHERE user_id = $1;',[req.id]);
         
