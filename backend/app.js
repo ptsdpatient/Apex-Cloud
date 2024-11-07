@@ -131,7 +131,7 @@ app.get('/api/captcha', async (req, res) => {
     const expiry = new Date(Date.now() + 15 * 60 * 1000); 
     await pool.query(
         'INSERT INTO captchas (solution, expiry) VALUES ($1, $2);',
-        [captcha.text, expiry,1]
+        [captcha.text, expiry]
     );
 
     res.status(200).send({captcha:captcha.data});

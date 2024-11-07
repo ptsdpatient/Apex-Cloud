@@ -75,7 +75,7 @@ onMount(()=>{
 
 <title>Apex Cloud | {register?"Register":"Login"}</title>
 
-<div class="flex flex-row justify-center bg-gradient-to-tr from-purple-400 to-blue-400" style="width:100vw;height:100svh;">
+<div class="flex flex-row justify-center bg-gradient-to-tr from-purple-500 to-blue-400" style="width:100vw;height:100svh;">
     <div class="h-full w-2/3 flex flex-col justify-center" style="user-select:none">
         <img class="w-2/3 mx-auto" alt="icon" src="/icon.png">
     </div>

@@ -22,6 +22,14 @@
     let currentPanel=5
 
 
+    async function confirmCaptcha(){
+        try{
+
+        }catch(err){
+
+        }
+    }
+
 
     async function getCaptcha(){
         
@@ -162,15 +170,6 @@
         currentDirectory=[...currentDirectory,file.name]
         filePath='/'+currentDirectory.join("/")
         getFiles()
-    }
-
-    async function confirmCaptcha(){
-        try{
-
-        }catch(err){
-
-        }
-
     }
 
     async function createFolder() {
@@ -412,7 +411,7 @@
 
                             </div>
                             <div class="w-1/2 h-full text-xl px-5">
-                                <div class="flex h-full flex-col gap-2">
+                                <form on:submit={confirmCaptcha} class="flex h-full flex-col gap-2">
                                     <div class="text-3xl mt-2 mb-3">Kindly fill out the following details</div>
                                         <input required placeholder="full name ex. Tanishq Dhote" class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
                                         <input required placeholder="mobile number ex. 8459291118" class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
@@ -430,10 +429,10 @@
                                         <div>
                                             {@html captchaImage}
                                         </div>
-                                        <input class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " placeholder="Enter Captcha" type="text">
+                                        <input class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " placeholder="Enter Captcha" required type="text">
                                     </div>
-                                    <button on:click={confirmCaptcha} class="text-lg py-2 my-auto text-white px-4 transition-all bg-gray-400 hover:bg-green-500 duration-200 rounded-xl">Continue</button>
-                                </div>
+                                    <button type="submit" class="text-lg py-2 my-auto text-white px-4 transition-all bg-gray-400 hover:bg-green-500 duration-200 rounded-xl">Continue</button>
+                                </form>
                             </div>
 
                         </div>
