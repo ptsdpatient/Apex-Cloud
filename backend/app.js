@@ -1,9 +1,13 @@
 const express = require('express');
 const pool = require('./database'); 
 const svgCaptcha = require('svg-captcha');
+const Tesseract = require('tesseract.js');
 require('dotenv').config();
 const app = express();
+const QRCode = require('qrcode');
 const fileUpload = require('express-fileupload');
+const multer = require('multer');
+
 // const port =  process.env.PORT;
 const cors = require('cors')
 const jwt = require('jsonwebtoken');
@@ -16,7 +20,7 @@ let index=0
 
 const baseUploadDir = path.join(__dirname, 'uploads');
 
-
+const receipt = multer({ dest: 'receipt/' });
 // const sslOptions = {
 //     key: fs.readFileSync('/home/apex_live/Apex-Live/certificate/private.key'),
 //     cert: fs.readFileSync('/home/apex_live/Apex-Live/certificate/certificate.crt'),
@@ -124,22 +128,42 @@ app.post('/api/getFiles',authenticateToken,async (req,res)=>{
         });
 })
 
-app.post('/api/checkout', async (req, res) => {
-    const { solution,storage,name,email,mobile,upi } = req.body;
+app.post('/api/checkout',authenticateToken, async (req, res) => {
+    const { solution,storage,name,email,mobile,upi,amount } = req.body;
     const result = await pool.query(
         'SELECT * FROM captchas WHERE solution = $1 AND expiry > NOW() ORDER BY id DESC LIMIT 1',
         [solution]
     );
 
     if (result.rows.length === 0) {
-        return res.status(400).send('Invalid or expired CAPTCHA');
+        const captcha = svgCaptcha.create();
+        const expiry = new Date(Date.now() + 15 * 60 * 1000); 
+        await pool.query(
+            'INSERT INTO captchas (solution, expiry) VALUES ($1, $2);',
+            [captcha.text, expiry]
+        );
+        return res.status(200).json({
+            done:false,
+            captcha:captcha.data,
+            info:'Invalid or expired CAPTCHA'
+        });
     }
-    const upiUrl = `upi://pay?pa=tanishqssg4-1@oksbi&pn=ETC-24-Tanishq%20Dhote&aid=uGICAgMDs5oWbKA&am=${storage}`;
 
+    const payment = await pool.query(
+        'INSERT INTO payments (user_id,storage,mobile,upi,email,amount) VALUES ($1, $2,$3,$4,$5,$6) RETURNING id;',
+        [req.id, storage,mobile,upi,email,amount]
+    );
 
-    res.status(200).send({
-        qr:"",
-        payment_id:""
+    const upiUrl = `upi://pay?pa=tanishqssg4-1@oksbi&pn=ETC-24-Tanishq%20Dhote&aid=uGICAgMDs5oWbKA&am=${amount}`;
+
+    QRCode.toString(upiUrl, { type: 'svg' }, (err, qrSvg) => {
+        console.log(payment.rows[0].id)
+        if (err) return res.status(500).send('Error generating QR code');
+        res.status(200).json({
+            qr:qrSvg,
+            done:true,
+            id:payment.rows[0].id
+        }); 
     });
 });
 
@@ -152,9 +176,34 @@ app.get('/api/captcha', async (req, res) => {
         'INSERT INTO captchas (solution, expiry) VALUES ($1, $2);',
         [captcha.text, expiry]
     );
-
     res.status(200).send({captcha:captcha.data});
+});
 
+app.post('/api/confirmPayment',receipt.single('receipt'), async (req, res) => {
+    console.log("confirming payment")
+    const receiptFile = req.body;
+
+    if (!receiptFile) {
+        console.log('no receipt')
+        return res.status(400).json({ error: 'No receipt image uploaded' });
+    }
+
+    try {
+        console.log('receipt')
+
+        // Perform OCR on the uploaded file
+        const { data: { text } } = await Tesseract.recognize(receiptFile.path, 'eng');
+        
+        // Delete the file after OCR processing if needed
+        // fs.unlinkSync(receiptFile.path);
+
+        // Return the extracted text as JSON
+        console.log('text is : '+text)
+        res.status(200).json({ extractedText: text });
+    } catch (ocrError) {
+        console.error('Error during OCR processing:', ocrError);
+        res.status(500).json({ error: 'OCR processing error' });
+    }
 });
 
 

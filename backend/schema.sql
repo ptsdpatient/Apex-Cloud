@@ -139,5 +139,8 @@ CREATE TABLE payments(
     FOREIGN KEY (user_id) REFERENCES users(id),
     receipt TEXT,
     storage INTEGER,
+    mobile VARCHAR,
+    upi VARCHAR,
+    email VARCHAR,
     amount INTEGER
 );

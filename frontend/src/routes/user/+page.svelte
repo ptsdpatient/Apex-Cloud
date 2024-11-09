@@ -5,8 +5,9 @@
     let username='Tanishq Dhote',email='tanishqbakka1@gmail.com'
     let token
     let uploadOpen=false
+    let receipt
     let uploadFolder=false
-    
+    let payment_id=''
     let files=[]
     let url='http://localhost:2000/api'
     let panelButtons=["Dashboard","Shared","Notifications","Bookmarks","Bin","Subscriptions","Help"] 
@@ -20,14 +21,16 @@
     let folderName=''
     let captchaImage='';
     let currentPanel=5
-
+    let payment=true
     let purchaseStorageSpace=1
     let purchaseFullName=''
     let purchaseMobile=''
     let purchaseEmail=''
     let purchaseUPI=''
     let purchaseCaptcha=''
-    
+    let spaceRate = 12
+    let qrImage=`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 49 49" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h49v49H0z"/><path stroke="#000000" d="M4 4.5h7m1 0h1m6 0h5m2 0h3m1 0h1m1 0h1m3 0h1m1 0h7M4 5.5h1m5 0h1m3 0h5m1 0h2m1 0h1m8 0h1m1 0h3m1 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m2 0h1m1 0h3m1 0h2m2 0h1m1 0h1m3 0h1m2 0h3m1 0h1m1 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h1m2 0h3m1 0h3m2 0h2m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m1 0h2m1 0h4m3 0h1m1 0h4m1 0h3m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m1 0h1m1 0h2m1 0h1m5 0h1m5 0h1m2 0h1m1 0h3m1 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M12 11.5h2m1 0h4m1 0h2m3 0h3m3 0h1m1 0h4M4 12.5h1m3 0h1m1 0h3m1 0h2m1 0h1m3 0h3m1 0h2m1 0h1m2 0h4m2 0h5m2 0h1M4 13.5h1m6 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h4m1 0h5m4 0h1m1 0h1m1 0h3M5 14.5h2m2 0h2m1 0h2m3 0h2m2 0h2m1 0h1m2 0h3m1 0h1m1 0h2m1 0h1m1 0h1m2 0h1m1 0h2M5 15.5h5m4 0h3m1 0h9m4 0h1m1 0h2m2 0h2m2 0h1m2 0h1M6 16.5h3m1 0h3m3 0h1m1 0h1m1 0h4m1 0h2m1 0h1m1 0h3m2 0h2m6 0h2M4 17.5h1m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m2 0h1m2 0h2m4 0h1m3 0h3m3 0h2m3 0h1M5 18.5h1m1 0h2m1 0h3m1 0h2m2 0h4m2 0h2m5 0h1m1 0h3m3 0h4m1 0h1M6 19.5h1m4 0h1m1 0h1m1 0h1m4 0h3m2 0h1m2 0h1m1 0h7m2 0h1m1 0h1m1 0h2M5 20.5h1m1 0h1m2 0h1m2 0h4m2 0h1m1 0h7m5 0h1m2 0h1m4 0h1m1 0h1M4 21.5h1m1 0h1m1 0h2m1 0h1m1 0h1m4 0h1m3 0h2m1 0h1m1 0h1m1 0h2m1 0h2m4 0h1m1 0h2m2 0h1M4 22.5h2m1 0h1m2 0h1m2 0h1m1 0h7m5 0h1m3 0h1m2 0h1m1 0h2m1 0h2m3 0h1M6 23.5h1m1 0h1m3 0h1m1 0h3m1 0h1m2 0h3m2 0h3m1 0h3m5 0h4m1 0h2M5 24.5h1m1 0h4m2 0h1m2 0h1m2 0h1m2 0h2m2 0h1m1 0h4m4 0h1m4 0h1M4 25.5h1m4 0h1m5 0h1m3 0h3m5 0h1m1 0h1m1 0h1m1 0h2m3 0h2m3 0h2M5 26.5h4m1 0h1m2 0h4m1 0h1m1 0h3m2 0h3m3 0h1m2 0h1m3 0h2m1 0h1m2 0h1M6 27.5h3m2 0h1m7 0h4m2 0h1m1 0h2m1 0h1m1 0h3m2 0h1m2 0h1m2 0h1M5 28.5h1m2 0h1m1 0h1m1 0h5m3 0h3m1 0h3m5 0h2m1 0h3m4 0h1M5 29.5h4m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m4 0h3m1 0h3m6 0h5m1 0h1M5 30.5h1m1 0h2m1 0h1m2 0h3m4 0h1m3 0h5m1 0h2m1 0h2m4 0h1m4 0h1M6 31.5h1m4 0h1m2 0h2m3 0h3m1 0h1m1 0h1m1 0h1m3 0h4m2 0h1m3 0h1m2 0h1M4 32.5h3m1 0h1m1 0h1m2 0h3m5 0h7m2 0h1m4 0h1m1 0h2m2 0h1M4 33.5h1m3 0h2m2 0h1m3 0h1m2 0h2m2 0h1m1 0h2m1 0h3m1 0h1m2 0h2m2 0h3M6 34.5h3m1 0h2m4 0h2m4 0h2m3 0h4m1 0h3m1 0h1m3 0h3m1 0h1M6 35.5h1m4 0h1m2 0h3m1 0h1m2 0h1m1 0h3m1 0h1m2 0h1m2 0h2m4 0h1m1 0h1m1 0h2M4 36.5h2m1 0h5m1 0h1m3 0h2m2 0h1m2 0h1m1 0h1m1 0h2m1 0h1m3 0h6M12 37.5h1m2 0h1m3 0h1m1 0h2m3 0h1m3 0h1m1 0h1m1 0h3m3 0h1M4 38.5h7m1 0h2m1 0h3m2 0h1m1 0h1m1 0h8m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1M4 39.5h1m5 0h1m3 0h6m3 0h3m1 0h3m3 0h4m3 0h2m2 0h1M4 40.5h1m1 0h3m1 0h1m1 0h2m2 0h5m2 0h2m2 0h1m1 0h1m4 0h7M4 41.5h1m1 0h3m1 0h1m3 0h3m1 0h1m1 0h1m1 0h1m3 0h1m3 0h1m1 0h1m3 0h2m1 0h1m1 0h3M4 42.5h1m1 0h3m1 0h1m2 0h1m3 0h5m2 0h1m1 0h8m5 0h1m4 0h1M4 43.5h1m5 0h1m3 0h1m1 0h1m3 0h4m1 0h1m1 0h2m2 0h1m1 0h1m1 0h2m1 0h1m4 0h2M4 44.5h7m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m1 0h4m4 0h1m2 0h1m1 0h1m2 0h3"/></svg>`
 
 
     async function confirmCaptcha(){
@@ -40,6 +43,7 @@
                     }, body: JSON.stringify({ 
                         solution:purchaseCaptcha,
                         storage:purchaseStorageSpace,
+                        amount:purchaseStorageSpace*spaceRate,
                         name: purchaseFullName,
                         mobile: purchaseMobile,
                         email: purchaseEmail,
@@ -49,7 +53,13 @@
 
             const data = await response.json();
 
-            alert(data)
+            if(data.done){
+                payment=true
+                qrImage=data.qr
+                payment_id=data.id
+            }else{
+                captchaImage=data.captcha
+            }
         }catch(err){
 
         }
@@ -90,7 +100,24 @@
     }
 
     const handleFilesChange=(event)=>{
+        if(payment){
+            receipt = event.target.files;
+            for(const r of receipt){
+                alert(r.webkitRelativePath)
+            }
+
+            for (const file of files) {
+                const formData = new FormData();
+                const fullPath = file.webkitRelativePath;
+                const directoryPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
+                formData.append('files', file);
+                formData.append('filePath',`${filePath}/${directoryPath}/`);
+                uploadFiles(formData)                
+            }            
+            return
+        }
         files = event.target.files; 
+
         if(uploadFolder){
             for (const file of files) {
                 const formData = new FormData();
@@ -197,32 +224,53 @@
         getFiles()
     }
 
-    async function createFolder() {
-            try {
-                const response = await fetch(`${url}/createFolder`, {
-                    method: 'POST',
-                    headers: {
+    async function confirmPayment(){
+        const formData = new FormData()
+        formData.append('receipt',receipt)
+        try{
+            const response = await fetch(`${url}/confirmPayment`,{
+                method: 'POST',
+                headers: {
                         'Authorization': `Bearer ${token}`, 
-                        'Content-Type': 'application/json'
-                    },body:JSON.stringify({
-                        path:filePath
-                    })
-                });
-    
-                const data = await response.json();
-    
-                if (response.ok) {
-                    console.log('Authenticated user:', data);
-                    if(data.error)window.location='/'
-                   
-                } else {
-                    alert(data.error || 'Token is invalid');
-                    window.location='/'
-                }
-            } catch (error) {
-                console.error('Error during token authentication:', error);
-                alert("An error occurred while authenticating the token.");
+                    },
+                body: formData
+            })
+
+            const data = await response.json()
+
+            alert(data)
+
+        }catch(err){
+
+        }
+    }
+
+    async function createFolder() {
+        try {
+            const response = await fetch(`${url}/createFolder`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`, 
+                    'Content-Type': 'application/json'
+                },body:JSON.stringify({
+                    path:filePath
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Authenticated user:', data);
+                if(data.error)window.location='/'
+                
+            } else {
+                alert(data.error || 'Token is invalid');
+                window.location='/'
             }
+        } catch (error) {
+            console.error('Error during token authentication:', error);
+            alert("An error occurred while authenticating the token.");
+        }
     }
 
 
@@ -271,6 +319,47 @@
     </script>
     
     <title>Apex Cloud | {username}</title>
+    
+    <div class="{payment?"flex":"hidden"} bg-black bg-opacity-70 p-6 fixed z-50" style="height:100svh;width:100vw;">
+        <div class="bg-gray-100 rounded-3xl h-full w-full flex flex-row">
+           
+            <div class="w-full flex flex-col relative  h-full">
+               
+                <div class="flex bg-white p-6 relative h-full rounded-3xl m-10 pt-5 flex-row justify-between">
+                    <div class="w-full absolute top-0 right-0 flex justify-end flex-row">
+                        <button on:click={payment=false} class="hover:text-white text-red-700 hover:bg-red-500 py-3 px-5 mr-4 mt-3 transition-all duration-200 rounded-3xl  text-4xl font-bold z-50">✕</button>
+                    </div>
+
+                    <div class="h-full flex flex-col flex-grow">
+                        <div class="">
+                            {@html qrImage}
+                        </div>
+                        <div class="text-xl pl-5">Scan this QR code to pay for the subscription</div>
+                    </div>
+                    <div class="flex flex-row text-xl flex-col gap-2 h-full w-3/4">
+                    
+                        <div class="flex h-full flex-col mt-5 gap-2">
+                            <div class="text-2xl pb-3 font-semibold">Payment Details </div>
+                            <div class="flex flex-row items-center gap-2">Payment ID : <div class="font-semibold">{payment_id}</div></div>
+                            <div class="flex flex-row items-center gap-2">Full Name : <div class="font-semibold">{purchaseFullName}</div> </div>
+                            <div class="flex flex-row items-center gap-2">Email ID : <div class="font-semibold">{purchaseEmail}</div> </div>
+                            <div class="flex flex-row items-center gap-2">Mobile number : <div class="font-semibold">{purchaseMobile}</div> </div>
+                            <div class="flex flex-row items-center gap-2">UPI id : <div class="font-semibold">{purchaseUPI}</div></div>
+                            <div class="flex flex-row items-center gap-2">Total Amount : <div class="font-semibold">{purchaseStorageSpace*spaceRate} Rs</div> </div>  
+                        </div>
+                        <form on:submit={confirmPayment} class="flex flex-row gap-4">
+                            <button class="border relative border-1 border-blue-500 rounded-xl px-3 py-2 text-blue-500 hover:bg-blue-500 hover:text-white duration-200 transition-all ease-in-out">Upload Receipt
+                                
+                                <input on:change={handleFilesChange} class="h-full absolute left-0 top-0 w-full opacity-0" required type="file">
+                            </button>
+                            <button type="submit" class="border border-1 border-green-500 rounded-xl px-3 py-2 text-green-500 hover:bg-green-500 hover:text-white duration-200 transition-all ease-in-out">Confirm Payment</button>
+                        </form>
+                    </div>
+                    <img class=" absolute bottom-0 right-0 w-1/3 p-5" src="qr_ill.png" alt="qr">
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div class="flex flex-col" style="width:100vw;height:100svh">
         <div class="flex flex-grow justify-around flex-row bg-gray-200">
@@ -436,19 +525,19 @@
 
                             </div>
                             <div class="w-1/2 h-full text-xl px-5">
-                                <form on:submit={confirmCaptcha} class="flex h-full flex-col gap-2">
+                                <form on:submit={confirmCaptcha} class="flex h-full justify-around flex-col gap-2">
                                     <div class="text-2xl mt-2 mb-1 pl-3">Please fill out the following details</div>
-                                        <input required placeholder="full name ex. Tanishq Dhote" bind:value={purchaseFullName} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
-                                        <input required placeholder="mobile number ex. 8459291118" bind:value={purchaseMobile} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
-                                        <input required placeholder="email id ex. tanishqssg4@gmail.com" bind:value={purchaseEmail} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="email">
-                                        <input required placeholder="upi id ex.tanishqssg4-1@oksbi" bind:value={purchaseUPI} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
+                                        <input  placeholder="full name ex. Tanishq Dhote" bind:value={purchaseFullName} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
+                                        <input  placeholder="mobile number ex. 8459291118" bind:value={purchaseMobile} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
+                                        <input  placeholder="email id ex. tanishqssg4@gmail.com" bind:value={purchaseEmail} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
+                                        <input  placeholder="upi id ex.tanishqssg4-1@oksbi" bind:value={purchaseUPI} class="border border-1 bg-gray-100 border-gray-100 px-2 py-1 rounded-lg focus:outline-none " type="text">
                                         
                                     <div class="flex flex-row justify-between gap-2 w-full items-center my-3">
                                         <div>I want</div>
                                         <input bind:value={purchaseStorageSpace}  placeholder="desired storage space ex.1GB,3GB etc" class="border border-1 bg-gray-100 flex flex-grow border-gray-100 py-1 rounded-lg focus:outline-none " max="100" min="1" type="range">
                                         <div class="">{purchaseStorageSpace} GB of space</div>
                                     </div>
-                                    <div>Your subscription would cost<br> {purchaseStorageSpace*12} Rs per year</div>
+                                    <div>Your subscription would cost<br> {purchaseStorageSpace*spaceRate} Rs per year</div>
                                     
                                     <div class="w-full flex flex-row justify-around items-center">
                                         <div>

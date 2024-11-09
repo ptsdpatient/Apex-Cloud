@@ -1,2 +1,5 @@
 /backend/node_modules
 /backend/uploads
+frontend/src/routes/user/+page.svelte
+/frontend
+/frontend
