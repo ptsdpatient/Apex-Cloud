@@ -14,6 +14,7 @@ const jwt = require('jsonwebtoken');
 const secretKey='apex_cloud_auth'
 const fs = require('fs');
 const path = require('path');
+
 const https = require('https')
 
 let index=0
@@ -169,7 +170,6 @@ app.post('/api/checkout',authenticateToken, async (req, res) => {
 
 
 app.get('/api/captcha', async (req, res) => {
-    console.log("captcha")
     const captcha = svgCaptcha.create();
     const expiry = new Date(Date.now() + 15 * 60 * 1000); 
     await pool.query(
@@ -207,6 +207,27 @@ app.post('/api/confirmPayment',receipt.single('receipt'), async (req, res) => {
 });
 
 
+app.post('/api/editFile',authenticateToken,async(req,res)=>{
+    try {
+        const {filePath,sub,name} =req.body
+        console.log(filePath,sub,name)
+        const data = await pool.query(`
+            SELECT subscriptions.id AS "id", 
+                mountpoints.mountpoint AS "mnt"
+                FROM subscriptions 
+                JOIN mountpoints ON subscriptions.mountpoint = mountpoints.id
+                WHERE subscriptions.sub_name = $1 AND subscriptions.user_id = $2;
+            `,[sub,req.id])
+            console.log('data : '+data.rows.length)
+            const fullPath = path.join(`${baseUploadDir}/${data.rows[0].mnt}/${data.rows[0].id}${filePath}/${name}`);
+            console.log(fullPath)
+    }catch(err){
+
+    }
+    
+})  
+
+
 app.post('/api/upload',authenticateToken, async(req, res) => {
 
     console.log(req.id)
@@ -217,7 +238,7 @@ app.post('/api/upload',authenticateToken, async(req, res) => {
                 SELECT subscriptions.id AS "id", 
                     mountpoints.mountpoint AS "mnt"
                     FROM subscriptions 
-                    JOIN mountpoints ON subscriptions.mountpoint = mountpoints.id 
+                    JOIN mountpoints ON subscriptions.mountpoint = mountpoints.id
                     WHERE subscriptions.sub_name = $1 AND subscriptions.user_id = $2;
             `,[sub,req.id])
             console.log('data : '+data.rows.length)

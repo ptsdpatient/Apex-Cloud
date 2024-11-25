@@ -10,9 +10,18 @@
     let uploadFolder=false
     let payment_id=''
     let files=[]
+    let excelSheets=[
+        'Sheet 1.xlsx',
+        'Sheet 2.xlsx',
+        'Sheet 3.xlsx',
+        'Sheet 1.xlsx',
+        'Sheet 2.xlsx',
+        'Sheet 3.xlsx','Sheet 1.xlsx',
+        'Sheet 2.xlsx',
+        'Sheet 3.xlsx', 
+    ]
 
     function generateExcelTable(rows, columns) {
-  // Function to generate Excel-style column headers (A, B, C, ..., AA, AB, ...)
         function generateColumnHeaders(limit) {
             const headers = [];
             for (let i = 0; i < limit; i++) {
@@ -27,23 +36,18 @@
             return headers;
         }
 
-        // Check for valid rows and columns
         if (rows <= 0 || columns <= 0) {
             throw new Error('Rows and columns must be greater than 0');
         }
 
-        // Generate column headers (e.g., A, B, C, ...)
         const columnHeaders = generateColumnHeaders(columns);
 
-        // Initialize table as a 2D array with rows + 1 (for headers)
         const table = new Array(rows + 1).fill(null).map(() => new Array(columns + 1).fill(''));
 
-        // Set column headers (first row)
         for (let col = 1; col <= columns; col++) {
             table[0][col] = columnHeaders[col - 1];
         }
 
-        // Set row headers (first column, excluding the very first cell)
         for (let row = 1; row <= rows; row++) {
             table[row][0] = row.toString();
         }
@@ -290,6 +294,42 @@
         }
     }
 
+    async function handleFileEdit(file){
+        try {
+                const response = await fetch(`${url}/editFile`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`, 
+                        'Content-Type': 'application/json'
+                    }, body: JSON.stringify({ 
+                        filePath:filePath,
+                        name:file.name,
+                        sub:subscription                       
+                    })
+                });
+    
+                const data = await response.json();
+                
+                if(response.ok || data.done){
+                        excelInit = data.map(file => {
+                        return {
+                            ...file, 
+                            selected:false,
+                            active:true
+                        };
+                    });
+
+                    currentPanel=1
+                }
+
+                
+
+            } catch (error) {
+                // console.error('Error during token authentication:', error);
+                // alert("An error occurred while authenticating the token.");
+            }
+    }
+
     async function createFolder() {
         try {
             const response = await fetch(`${url}/createFolder`, {
@@ -505,7 +545,6 @@
                                         <div class="items-center align-center flex flex-row">
                                             <button on:click={()=>{gotoFolder(index)}} class="transform hover:bg-opacity-50 hover:bg-gray-200 px-2 py-1 transition-all duration-100 ease-in-out rounded-xl">.</button>
                                         </div>                                
-
                                     {:else}
                                         <div class="items-center align-center flex flex-row inline-block whitespace-nowrap items-center">
                                             <button on:click={()=>{gotoFolder(index)}} class="transform hover:bg-opacity-50 hover:bg-gray-200  px-2 py-1 transition-all duration-100 ease-in-out rounded-xl">{folder}</button>
@@ -532,7 +571,7 @@
                             <tbody class="">
                                 {#each currentFiles as files,index}
                                     <tr class=" {files.selected?"bg-blue-100":"hover:bg-gray-100"} {files.active?"hover:cursor-pointer":"opacity-0"} hover:shadow-sm rounded-xl  transition-all ease-in-out" >
-                                        <td class=" text-left flex flex-row  my-auto">
+                                        <td  class=" text-left flex flex-row  my-auto">
                                             <input bind:checked={files.selected} class="accent-blue-600 hover:cursor-pointer transform scale-150 mx-3 mr-5  {files.active?"block":"hidden"}" type="checkbox">
                                             <button on:click={()=>{(!files.isDirectory)?files.selected=!files.selected:openFolder(files)}} class="py-4  {files.active?"flex":"hidden"} flex-row items-center w-full">
                                                 <img class="my-auto mr-2" style="width:24px;height:24px;" src={files.isDirectory?"folder.png":"file.png"} alt={files.isDirectory?"Folder":"File"}>
@@ -553,7 +592,7 @@
                                         <td class=" py-1 text-left pl-5">
                                             <div class="  {files.active?"flex":"hidden"} flex-row gap-4 text-2xl py-1">
                                                 <button on:click={()=>{alert("bookmark")}} class="hover:bg-yellow-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bookmarks.png" alt="bookmark"></button>
-                                                <button on:click={()=>{alert("share")}} class="hover:bg-blue-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Share.png" alt="bookmark"></button>
+                                                <button on:click={()=>{if(!files.isDirectory) {handleFileEdit(files)}}} disabled={files.isDirectory} class="hover:bg-blue-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="edit.png" alt="bookmark"></button>
                                                 <button on:click={()=>{alert("delete")}} class="hover:bg-red-400 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bin.png" alt="bookmark"></button>
                                             </div>                                    
                                         </td>
@@ -567,15 +606,31 @@
 
                 <!-- Excel Sheet Editor -->
 
-                <div class="w-3/4 flex p-2 flex-col pl-2 py-2 " style="height:100svh;">
+                <div class="w-3/4 flex p-2 flex-col pl-2 py-2 gap-3" style="height:100svh;">
                     <div class="w-full h-full flex flex-col bg-white rounded-tl-2xl rounded-bl-2xl">
                         <div class="w-full flex flex-row p-3 gap-3">
                             <input placeholder="filename" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-black text-lg w-1/4 pl-4 rounded-lg">
-                            <button class="py-1 px-2 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="folder.png" alt=""><div>Open</div></button>
-                            <button class="py-1 px-2 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="save.png" alt=""><div>Save</div></button>
-                            <button class="py-1 px-2 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="download.png" alt=""><div>Download</div></button>
-                            <button class="py-1 px-2 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="print.png" alt=""><div>Print</div></button>
+                            <button class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="folder.png" alt=""><div>Open</div></button>
+                            <button class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="save.png" alt=""><div>Save</div></button>
+                            <button class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="download.png" alt=""><div>Download</div></button>
+                            <button class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="print.png" alt=""><div>Print</div></button>
+                            
                         </div>
+
+
+                        <div class="w-full flex flex-row pt-2 pl-4  justify-between pb-4">
+                            <div class="flex flex-row gap-3 overflow-x-auto" style="max-width:55%">
+                                {#each excelSheets as sheet}
+                                    <button class="px-5 whitespace-nowrap inline-block text-left py-1  rounded-xl hover:bg-gray-100 border-gray-200">{sheet}</button>
+                                {/each}
+                            </div>
+                            <div class="flex flex-row justify-around">
+                                <input placeholder="sheet name" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-black text-lg w-1/2 pl-4 rounded-lg">
+                                <button class="py-1 px-2 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Create Sheet</div></button>
+                            </div>
+                        </div>
+
+                        
 
                         <div class="w-full h-full rounded-bl-2xl overflow-y-auto">
                             <div class="overflow-y-hidden w-full overflow-y-hidden" style="min-width:1000vw;min-height:1000vh;">
@@ -584,7 +639,7 @@
                                     <thead>
                                         <tr>
                                           {#each excelInit[0] as header, headerIndex}
-                                            <th class="bg-white border border-gray-300 px-3 py-2" style="width: {headerIndex===0?"65":"180"}px;">
+                                            <th class="bg-white border border-gray-300 font-semibold text-gray-700 px-3 py-2" style="width: {headerIndex===0?"65":"180"}px;">
                                               {header || ''}
                                             </th>
                                           {/each}
@@ -596,9 +651,9 @@
                                             {#each row as cell, cellIndex}
                                               <td 
                                                 contenteditable={cellIndex===0?"false":"true"}
-                                                on:input={(event) => {updateCell(rowIndex + 1, cellIndex, event)}} 
+                                                on:input={(event) => {updateCell(rowIndex + 1, cellIndex, event)}}
                                     
-                                                class="bg-white border border-1 py-1 border-gray-300 {cellIndex===0?"text-center":""} px-3" >
+                                                class="bg-white focus:outline-none border border-1 py-1 border-gray-300 {cellIndex===0?"text-center text-gray-700":""} px-3" >
                                                 {cell}
                                               </td>
                                             {/each}
