@@ -20,7 +20,17 @@
         'Sheet 2.xlsx',
         'Sheet 3.xlsx', 
     ]
+    function addRows(numRows = 10) {
+        excelData = extendExcelData(excelData, excelData.length + numRows, excelData[0].length);
+    }
 
+  // Function to extend columns
+    function addColumns(numCols = 5) {
+        const targetCols = excelData[0].length + numCols;
+        excelData = extendExcelData(excelData, excelData.length, targetCols);
+    }
+
+    
     function generateExcelTable(rows, columns) {
         function generateColumnHeaders(limit) {
             const headers = [];
@@ -53,8 +63,9 @@
         }
 
         return table;
-        }
-    let excelInit = generateExcelTable(100,100);
+    }
+
+    let excelData = generateExcelTable(100,100);
 
     let url='http://localhost:2000/api'
     let panelButtons=["Dashboard","Excel","Docs","Notifications","Bookmarks","Bin","Subscriptions"] 
@@ -78,6 +89,53 @@
     let spaceRate = 12
     let qrImage=`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 49 49" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h49v49H0z"/><path stroke="#000000" d="M4 4.5h7m1 0h1m6 0h5m2 0h3m1 0h1m1 0h1m3 0h1m1 0h7M4 5.5h1m5 0h1m3 0h5m1 0h2m1 0h1m8 0h1m1 0h3m1 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m2 0h1m1 0h3m1 0h2m2 0h1m1 0h1m3 0h1m2 0h3m1 0h1m1 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h1m2 0h3m1 0h3m2 0h2m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m1 0h2m1 0h4m3 0h1m1 0h4m1 0h3m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m1 0h1m1 0h2m1 0h1m5 0h1m5 0h1m2 0h1m1 0h3m1 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M12 11.5h2m1 0h4m1 0h2m3 0h3m3 0h1m1 0h4M4 12.5h1m3 0h1m1 0h3m1 0h2m1 0h1m3 0h3m1 0h2m1 0h1m2 0h4m2 0h5m2 0h1M4 13.5h1m6 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h4m1 0h5m4 0h1m1 0h1m1 0h3M5 14.5h2m2 0h2m1 0h2m3 0h2m2 0h2m1 0h1m2 0h3m1 0h1m1 0h2m1 0h1m1 0h1m2 0h1m1 0h2M5 15.5h5m4 0h3m1 0h9m4 0h1m1 0h2m2 0h2m2 0h1m2 0h1M6 16.5h3m1 0h3m3 0h1m1 0h1m1 0h4m1 0h2m1 0h1m1 0h3m2 0h2m6 0h2M4 17.5h1m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m2 0h1m2 0h2m4 0h1m3 0h3m3 0h2m3 0h1M5 18.5h1m1 0h2m1 0h3m1 0h2m2 0h4m2 0h2m5 0h1m1 0h3m3 0h4m1 0h1M6 19.5h1m4 0h1m1 0h1m1 0h1m4 0h3m2 0h1m2 0h1m1 0h7m2 0h1m1 0h1m1 0h2M5 20.5h1m1 0h1m2 0h1m2 0h4m2 0h1m1 0h7m5 0h1m2 0h1m4 0h1m1 0h1M4 21.5h1m1 0h1m1 0h2m1 0h1m1 0h1m4 0h1m3 0h2m1 0h1m1 0h1m1 0h2m1 0h2m4 0h1m1 0h2m2 0h1M4 22.5h2m1 0h1m2 0h1m2 0h1m1 0h7m5 0h1m3 0h1m2 0h1m1 0h2m1 0h2m3 0h1M6 23.5h1m1 0h1m3 0h1m1 0h3m1 0h1m2 0h3m2 0h3m1 0h3m5 0h4m1 0h2M5 24.5h1m1 0h4m2 0h1m2 0h1m2 0h1m2 0h2m2 0h1m1 0h4m4 0h1m4 0h1M4 25.5h1m4 0h1m5 0h1m3 0h3m5 0h1m1 0h1m1 0h1m1 0h2m3 0h2m3 0h2M5 26.5h4m1 0h1m2 0h4m1 0h1m1 0h3m2 0h3m3 0h1m2 0h1m3 0h2m1 0h1m2 0h1M6 27.5h3m2 0h1m7 0h4m2 0h1m1 0h2m1 0h1m1 0h3m2 0h1m2 0h1m2 0h1M5 28.5h1m2 0h1m1 0h1m1 0h5m3 0h3m1 0h3m5 0h2m1 0h3m4 0h1M5 29.5h4m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m4 0h3m1 0h3m6 0h5m1 0h1M5 30.5h1m1 0h2m1 0h1m2 0h3m4 0h1m3 0h5m1 0h2m1 0h2m4 0h1m4 0h1M6 31.5h1m4 0h1m2 0h2m3 0h3m1 0h1m1 0h1m1 0h1m3 0h4m2 0h1m3 0h1m2 0h1M4 32.5h3m1 0h1m1 0h1m2 0h3m5 0h7m2 0h1m4 0h1m1 0h2m2 0h1M4 33.5h1m3 0h2m2 0h1m3 0h1m2 0h2m2 0h1m1 0h2m1 0h3m1 0h1m2 0h2m2 0h3M6 34.5h3m1 0h2m4 0h2m4 0h2m3 0h4m1 0h3m1 0h1m3 0h3m1 0h1M6 35.5h1m4 0h1m2 0h3m1 0h1m2 0h1m1 0h3m1 0h1m2 0h1m2 0h2m4 0h1m1 0h1m1 0h2M4 36.5h2m1 0h5m1 0h1m3 0h2m2 0h1m2 0h1m1 0h1m1 0h2m1 0h1m3 0h6M12 37.5h1m2 0h1m3 0h1m1 0h2m3 0h1m3 0h1m1 0h1m1 0h3m3 0h1M4 38.5h7m1 0h2m1 0h3m2 0h1m1 0h1m1 0h8m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1M4 39.5h1m5 0h1m3 0h6m3 0h3m1 0h3m3 0h4m3 0h2m2 0h1M4 40.5h1m1 0h3m1 0h1m1 0h2m2 0h5m2 0h2m2 0h1m1 0h1m4 0h7M4 41.5h1m1 0h3m1 0h1m3 0h3m1 0h1m1 0h1m1 0h1m3 0h1m3 0h1m1 0h1m3 0h2m1 0h1m1 0h3M4 42.5h1m1 0h3m1 0h1m2 0h1m3 0h5m2 0h1m1 0h8m5 0h1m4 0h1M4 43.5h1m5 0h1m3 0h1m1 0h1m3 0h4m1 0h1m1 0h2m2 0h1m1 0h1m1 0h2m1 0h1m4 0h2M4 44.5h7m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m1 0h4m4 0h1m2 0h1m1 0h1m2 0h3"/></svg>`
+
+
+    function extendExcelData(data, targetRows, targetCols) {
+        function generateColumnHeaders(limit) {
+        const headers = [];
+        for (let i = 0; i < limit; i++) {
+            let header = '';
+            let index = i;
+            while (index >= 0) {
+                header = String.fromCharCode((index % 26) + 65) + header;
+                index = Math.floor(index / 26) - 1;
+            }
+            headers.push(header);
+        }
+        return headers;
+    }
+
+    const currentRows = data.length;
+    const currentCols = Math.max(...data.map(row => row.length));
+
+    const columnHeaders = generateColumnHeaders(Math.max(targetCols - 1, currentCols));
+
+    const extendedData = [];
+
+    const headerRow = ['#']; 
+    for (let col = 0; col < Math.max(currentCols, targetCols - 1); col++) {
+        headerRow.push(columnHeaders[col]);
+    }
+    extendedData.push(headerRow);
+
+    for (let i = 0; i < targetRows; i++) {
+        const newRow = Array(Math.max(currentCols, targetCols)).fill('');
+
+        newRow[0] = (i + 1).toString();
+
+        if (i < currentRows) {
+            for (let j = 0; j < currentCols; j++) {
+                newRow[j + 1] = data[i][j] || '';
+            }
+        }
+
+        extendedData.push(newRow);
+    }
+
+    return extendedData;
+}
+
 
 
     async function confirmCaptcha(){
@@ -311,18 +369,10 @@
                 const data = await response.json();
                 
                 if(response.ok || data.done){
-                        excelInit = data.map(file => {
-                        return {
-                            ...file, 
-                            selected:false,
-                            active:true
-                        };
-                    });
-
+                    excelSheets = data.sheetNames                    
+                    excelData = extendExcelData(data.data, 100, 50);
                     currentPanel=1
-                }
-
-                
+                };                                  
 
             } catch (error) {
                 // console.error('Error during token authentication:', error);
@@ -394,9 +444,9 @@
     }
 
 
-        function updateCell(rowIndex, cellIndex, event) {
-            excelInit[rowIndex][cellIndex] = event.target.textContent;
-        }
+            function updateCell(rowIndex, cellIndex, event) {
+            excelData[rowIndex][cellIndex] = event.target.textContent.trim();
+            }
     
     
     onMount(()=>{
@@ -489,117 +539,118 @@
                 
                 
                 {#if currentPanel === 0}
-                <div class="w-3/4 flex p-2 m-2 flex-col bg-white rounded-2xl overflow-x-hidden">
-
-                    <div class="flex flex-row gap-2  py-3 overflow-x-auto">
-                        <button class="px-4 inline-block whitespace-nowrap text-lg rounded-2xl py-1 transition-all hover:bg-gray-100 text-black hover:shadow-sm ease-in-out duration-100">Select All</button>
-
-                        <input placeholder="⌕ Search Files" class="focus:outline-none bg-gray-100 flex flex-grow placeholder-black text-lg pl-4 rounded-2xl">
-
-                        {#each operationButtons as button}
-                            <button class="px-4 inline-block whitespace-nowrap text-lg rounded-2xl py-1 transition-all hover:bg-gray-100 text-black hover:shadow-sm ease-in-out duration-100">{button}</button>
-                        {/each}
-                    </div>
-                    
-                    <div class="flex flex-row relative w-full text-xl justify-between py-2 px-2 gap-3 shadow-sm">
-                        <div class="flex flex-row  overflow-x-hidden">
-                            <button on:click={previousFolder} class=" px-4 text-xl rounded-2xl py-1 mr-2 hover:bg-gray-100 text-black transition-all ease-in-out duration-100">←</button>
-                            
-                            <div class="items-center bg-white align-center flex flex-col  whitespace-nowrap overflow-y-auto overflow-visible" style="z-index:40">
-                                <button on:click={()=>{showSubscriptions=!showSubscriptions}} class="transform hover:bg-opacity-50 hover:bg-gray-200  px-2 py-1 transition-all duration-100 ease-in-out rounded-xl flex flex-row items-center justify-between gap-3 group">
-                                    <div>
-                                        {#if subscription.length > 26}
-                                            {subscription.substring(0, 24) + '...'}
-                                        {:else}
-                                            {subscription}
-                                        {/if}
-                                    </div>
-                                    <div class="transition-all duration-300 ease-in-out transform -scale-x-100 {!showSubscriptions?"":"rotate-90"}">〱</div>
-                                </button>
-                                <div class="absolute flex-col bg-gray-200 rounded-br-3xl shadow-xl rounded-bl-3xl p-3  w-1/2 justify-around gap-2 top-full left-0 {showSubscriptions?"flex":"hidden"} overflow-y-auto" style="z-index:40;">
-                                    
-                                    <div class="flex flex-col gap-2" style="max-height:250px;">                                        
-                                        {#each subscriptions as sub}
-                                            <button on:click={()=>changeSubscription(sub.sub_name)} class="transform w-full bg-white {((sub.usage/(sub.storage))*100)>80?"hover:bg-red-500 ":((sub.usage/(sub.storage))*100)>60?"hover:bg-orange-500":((sub.usage/(sub.storage))*100)>40?"hover:bg-yellow-500":"hover:bg-green-500"} hover:text-white hover:shadow-xl transition-all duration-200 ease-in-out rounded-xl flex flex-row items-center justify-between gap-3 group pl-1 flex flex-row justify-between">
-                                                <div class="max-w-4 inline-block whitespace-nowrap pl-2 py-1">
-                                                    {#if sub.sub_name.length > 26}
-                                                        {sub.sub_name.substring(0, 24) + '...'}
-                                                    {:else}
-                                                        {sub.sub_name}
-                                                    {/if}
-                                                </div>
-                                                <div class="px-2 py-1 rounded-tr-xl rounded-br-xl">{sub.usage}/{sub.storage} GB</div>
-                                            </button>
-                                        {/each}                              
-                                    </div>
-                                    <button on:click={()=>{currentPanel=5;showSubscriptions=false;getCaptcha()}} class="transform bg-blue-500 text-white transform transition-all duration-200 ease-in-out rounded-xl flex flex-row items-center gap-3 group px-2 py-1 w-full text-center flex flex-row justify-center"><div>Get More Storage +</div></button>
-                                </div>                                    
-                            </div> 
-                            
-                            <div class="flex relative flex-row text-xl overflow-x-auto items-center">                                
-                                
-                                                            
-
-                                {#each currentDirectory as folder,index}
-                                    {#if currentDirectory.length>4 && (index>1 && index <currentDirectory.length-1)}
-                                        <div class="items-center align-center flex flex-row">
-                                            <button on:click={()=>{gotoFolder(index)}} class="transform hover:bg-opacity-50 hover:bg-gray-200 px-2 py-1 transition-all duration-100 ease-in-out rounded-xl">.</button>
-                                        </div>                                
-                                    {:else}
-                                        <div class="items-center align-center flex flex-row inline-block whitespace-nowrap items-center">
-                                            <button on:click={()=>{gotoFolder(index)}} class="transform hover:bg-opacity-50 hover:bg-gray-200  px-2 py-1 transition-all duration-100 ease-in-out rounded-xl">{folder}</button>
-                                            <pre>/</pre>
-                                        </div>
-                                    {/if}
-                                {/each}
-                            </div>
+                <div class="w-3/4 flex p-2 flex-col overflow-x-hidden">
+                    <div class="w-full h-full flex flex-col bg-white rounded-2xl">
+                        <div class="flex flex-row gap-2  py-3 overflow-x-auto">
+                            <button class="px-4 inline-block whitespace-nowrap text-lg rounded-2xl py-1 transition-all hover:bg-gray-100 text-black hover:shadow-sm ease-in-out duration-100">Select All</button>
+    
+                            <input placeholder="⌕ Search Files" class="focus:outline-none bg-gray-100 flex flex-grow placeholder-black text-lg pl-4 rounded-2xl">
+    
+                            {#each operationButtons as button}
+                                <button class="px-4 inline-block whitespace-nowrap text-lg rounded-2xl py-1 transition-all hover:bg-gray-100 text-black hover:shadow-sm ease-in-out duration-100">{button}</button>
+                            {/each}
                         </div>
-                        <button class="px-4 mr-4 text-lg inline-block whitespace-nowrap rounded-2xl py-1  transition-all bg-gray-500 hover:bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">New Folder</button>
-                    </div>
-
-
-
-                    <div class="bg-white flex flex-grow overflow-y-auto" style="height:0vh;">
-                        <table class="w-full border-collapse text-xl overflow-y-auto">
-                            <thead class="text-black bg-white my-4">
-                            <tr class="shadow-sm">
-                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-6/12 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out "><button class="w-full flex flex-row justify-between pr-5 gap-4"><div>File Name</div><img src="sort.png" alt="sort"></button></td>
-                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-3/12 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><button class="w-full flex flex-row justify-between pr-5 gap-4"><div>Last Modified</div><img src="sort.png" alt="sort"></button></td>
-                                <td class=" whitespace-nowrap py-3 text-left pl-5 w-3/12 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><div>Actions</div></td>
-                            </tr>
-                            </thead>
-                            <tbody class="">
-                                {#each currentFiles as files,index}
-                                    <tr class=" {files.selected?"bg-blue-100":"hover:bg-gray-100"} {files.active?"hover:cursor-pointer":"opacity-0"} hover:shadow-sm rounded-xl  transition-all ease-in-out" >
-                                        <td  class=" text-left flex flex-row  my-auto">
-                                            <input bind:checked={files.selected} class="accent-blue-600 hover:cursor-pointer transform scale-150 mx-3 mr-5  {files.active?"block":"hidden"}" type="checkbox">
-                                            <button on:click={()=>{(!files.isDirectory)?files.selected=!files.selected:openFolder(files)}} class="py-4  {files.active?"flex":"hidden"} flex-row items-center w-full">
-                                                <img class="my-auto mr-2" style="width:24px;height:24px;" src={files.isDirectory?"folder.png":"file.png"} alt={files.isDirectory?"Folder":"File"}>
-                                                <div class="inline-block whitespace-nowrap overflow-x-hidden flex" style="width: 100%">
-                                                    {#if files.name.length > 35}
-                                                        {#if files.name.includes('.')}
-                                                            {files.name.substring(0, 30) + '...' + files.name.split('.').pop()}
+                        
+                        <div class="flex flex-row relative w-full text-xl justify-between py-2 px-2 gap-3 shadow-sm">
+                            <div class="flex flex-row  overflow-x-hidden">
+                                <button on:click={previousFolder} class=" px-4 text-xl rounded-2xl py-1 mr-2 hover:bg-gray-100 text-black transition-all ease-in-out duration-100">←</button>
+                                
+                                <div class="items-center bg-white align-center flex flex-col  whitespace-nowrap overflow-y-auto overflow-visible" style="z-index:40">
+                                    <button on:click={()=>{showSubscriptions=!showSubscriptions}} class="transform hover:bg-opacity-50 hover:bg-gray-200  px-2 py-1 transition-all duration-100 ease-in-out rounded-xl flex flex-row items-center justify-between gap-3 group">
+                                        <div>
+                                            {#if subscription.length > 26}
+                                                {subscription.substring(0, 24) + '...'}
+                                            {:else}
+                                                {subscription}
+                                            {/if}
+                                        </div>
+                                        <div class="transition-all duration-300 ease-in-out transform -scale-x-100 {!showSubscriptions?"":"rotate-90"}">〱</div>
+                                    </button>
+                                    <div class="absolute flex-col bg-gray-200 rounded-br-3xl shadow-xl rounded-bl-3xl p-3  w-1/2 justify-around gap-2 top-full left-0 {showSubscriptions?"flex":"hidden"} overflow-y-auto" style="z-index:40;">
+                                        
+                                        <div class="flex flex-col gap-2" style="max-height:250px;">                                        
+                                            {#each subscriptions as sub}
+                                                <button on:click={()=>changeSubscription(sub.sub_name)} class="transform w-full bg-white {((sub.usage/(sub.storage))*100)>80?"hover:bg-red-500 ":((sub.usage/(sub.storage))*100)>60?"hover:bg-orange-500":((sub.usage/(sub.storage))*100)>40?"hover:bg-yellow-500":"hover:bg-green-500"} hover:text-white hover:shadow-xl transition-all duration-200 ease-in-out rounded-xl flex flex-row items-center justify-between gap-3 group pl-1 flex flex-row justify-between">
+                                                    <div class="max-w-4 inline-block whitespace-nowrap pl-2 py-1">
+                                                        {#if sub.sub_name.length > 26}
+                                                            {sub.sub_name.substring(0, 24) + '...'}
+                                                        {:else}
+                                                            {sub.sub_name}
+                                                        {/if}
+                                                    </div>
+                                                    <div class="px-2 py-1 rounded-tr-xl rounded-br-xl">{sub.usage}/{sub.storage} GB</div>
+                                                </button>
+                                            {/each}                              
+                                        </div>
+                                        <button on:click={()=>{currentPanel=5;showSubscriptions=false;getCaptcha()}} class="transform bg-blue-500 text-white transform transition-all duration-200 ease-in-out rounded-xl flex flex-row items-center gap-3 group px-2 py-1 w-full text-center flex flex-row justify-center"><div>Get More Storage +</div></button>
+                                    </div>                                    
+                                </div> 
+                                
+                                <div class="flex relative flex-row text-xl overflow-x-auto items-center">                                
+                                    
+                                                                
+    
+                                    {#each currentDirectory as folder,index}
+                                        {#if currentDirectory.length>4 && (index>1 && index <currentDirectory.length-1)}
+                                            <div class="items-center align-center flex flex-row">
+                                                <button on:click={()=>{gotoFolder(index)}} class="transform hover:bg-opacity-50 hover:bg-gray-200 px-2 py-1 transition-all duration-100 ease-in-out rounded-xl">.</button>
+                                            </div>                                
+                                        {:else}
+                                            <div class="items-center align-center flex flex-row inline-block whitespace-nowrap items-center">
+                                                <button on:click={()=>{gotoFolder(index)}} class="transform hover:bg-opacity-50 hover:bg-gray-200  px-2 py-1 transition-all duration-100 ease-in-out rounded-xl">{folder}</button>
+                                                <pre>/</pre>
+                                            </div>
+                                        {/if}
+                                    {/each}
+                                </div>
+                            </div>
+                            <button class="px-4 mr-4 text-lg inline-block whitespace-nowrap rounded-2xl py-1  transition-all bg-gray-500 hover:bg-blue-500 text-white hover:shadow-xl transform hover:scale-105 ease-in-out duration-100">New Folder</button>
+                        </div>
+    
+    
+    
+                        <div class="bg-white flex flex-grow overflow-y-auto" style="height:0vh;">
+                            <table class="w-full border-collapse text-xl overflow-y-auto">
+                                <thead class="text-black bg-white my-4">
+                                <tr class="shadow-sm">
+                                    <td class=" whitespace-nowrap py-3 text-left pl-5 w-6/12 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out "><button class="w-full flex flex-row justify-between pr-5 gap-4"><div>File Name</div><img src="sort.png" alt="sort"></button></td>
+                                    <td class=" whitespace-nowrap py-3 text-left pl-5 w-3/12 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><button class="w-full flex flex-row justify-between pr-5 gap-4"><div>Last Modified</div><img src="sort.png" alt="sort"></button></td>
+                                    <td class=" whitespace-nowrap py-3 text-left pl-5 w-3/12 hover:bg-gray-100 hover:shadow-sm  hover:cursor-pointer transition-all ease-in-out"><div>Actions</div></td>
+                                </tr>
+                                </thead>
+                                <tbody class="">
+                                    {#each currentFiles as files,index}
+                                        <tr class=" {files.selected?"bg-blue-100":"hover:bg-gray-100"} {files.active?"hover:cursor-pointer":"opacity-0"} hover:shadow-sm rounded-xl  transition-all ease-in-out" >
+                                            <td  class=" text-left flex flex-row  my-auto">
+                                                <input bind:checked={files.selected} class="accent-blue-600 hover:cursor-pointer transform scale-150 mx-3 mr-5  {files.active?"block":"hidden"}" type="checkbox">
+                                                <button on:click={()=>{(!files.isDirectory)?files.selected=!files.selected:openFolder(files)}} class="py-4  {files.active?"flex":"hidden"} flex-row items-center w-full">
+                                                    <img class="my-auto mr-2" style="width:24px;height:24px;" src={files.isDirectory?"folder.png":"file.png"} alt={files.isDirectory?"Folder":"File"}>
+                                                    <div class="inline-block whitespace-nowrap overflow-x-hidden flex" style="width: 100%">
+                                                        {#if files.name.length > 35}
+                                                            {#if files.name.includes('.')}
+                                                                {files.name.substring(0, 30) + '...' + files.name.split('.').pop()}
+                                                            {:else}
+                                                                {files.name}
+                                                            {/if}
                                                         {:else}
                                                             {files.name}
                                                         {/if}
-                                                    {:else}
-                                                        {files.name}
-                                                    {/if}
-                                                </div>
-                                            </button>
-                                        </td>
-                                        <td on:click={()=>{(!files.isDirectory)?files.selected=!files.selected:openFolder(files)}} class=" py-2 text-left pl-5"><div class=" inline-block whitespace-nowrap">{files.created_at}</div></td>
-                                        <td class=" py-1 text-left pl-5">
-                                            <div class="  {files.active?"flex":"hidden"} flex-row gap-4 text-2xl py-1">
-                                                <button on:click={()=>{alert("bookmark")}} class="hover:bg-yellow-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bookmarks.png" alt="bookmark"></button>
-                                                <button on:click={()=>{if(!files.isDirectory) {handleFileEdit(files)}}} disabled={files.isDirectory} class="hover:bg-blue-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="edit.png" alt="bookmark"></button>
-                                                <button on:click={()=>{alert("delete")}} class="hover:bg-red-400 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bin.png" alt="bookmark"></button>
-                                            </div>                                    
-                                        </td>
-                                    </tr>    
-                                {/each}
-                            </tbody>
-                        </table>
+                                                    </div>
+                                                </button>
+                                            </td>
+                                            <td on:click={()=>{(!files.isDirectory)?files.selected=!files.selected:openFolder(files)}} class=" py-2 text-left pl-5"><div class=" inline-block whitespace-nowrap">{files.created_at}</div></td>
+                                            <td class=" py-1 text-left pl-5">
+                                                <div class="  {files.active?"flex":"hidden"} flex-row gap-4 text-2xl py-1">
+                                                    <button on:click={()=>{alert("bookmark")}} class="hover:bg-yellow-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bookmarks.png" alt="bookmark"></button>
+                                                    <button on:click={()=>{if(!files.isDirectory) {handleFileEdit(files)}}} disabled={files.isDirectory} class="hover:bg-blue-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="edit.png" alt="bookmark"></button>
+                                                    <button on:click={()=>{alert("delete")}} class="hover:bg-red-400 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bin.png" alt="bookmark"></button>
+                                                </div>                                    
+                                            </td>
+                                        </tr>    
+                                    {/each}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 {:else if currentPanel===1}
@@ -614,12 +665,14 @@
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="save.png" alt=""><div>Save</div></button>
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="download.png" alt=""><div>Download</div></button>
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="print.png" alt=""><div>Print</div></button>
-                            
+                            <button on:click={() => addRows(10)} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Rows</div></button>
+                            <button on:click={() => addColumns(5)} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Columns</div></button>
+
                         </div>
 
 
                         <div class="w-full flex flex-row pt-2 pl-4  justify-between pb-4">
-                            <div class="flex flex-row gap-3 overflow-x-auto" style="max-width:55%">
+                            <div class="flex flex-row gap-3 pb-1 overflow-x-auto" style="max-width:55%">
                                 {#each excelSheets as sheet}
                                     <button class="px-5 whitespace-nowrap inline-block text-left py-1  rounded-xl hover:bg-gray-100 border-gray-200">{sheet}</button>
                                 {/each}
@@ -638,7 +691,7 @@
                                 <table>
                                     <thead>
                                         <tr>
-                                          {#each excelInit[0] as header, headerIndex}
+                                          {#each excelData[0] as header, headerIndex}
                                             <th class="bg-white border border-gray-300 font-semibold text-gray-700 px-3 py-2" style="width: {headerIndex===0?"65":"180"}px;">
                                               {header || ''}
                                             </th>
@@ -646,14 +699,15 @@
                                         </tr>
                                       </thead>
                                       <tbody>
-                                        {#each excelInit.slice(1) as row, rowIndex}
+                                        {#each excelData.slice(1) as row, rowIndex}
                                           <tr>
                                             {#each row as cell, cellIndex}
                                               <td 
-                                                contenteditable={cellIndex===0?"false":"true"}
-                                                on:input={(event) => {updateCell(rowIndex + 1, cellIndex, event)}}
-                                    
-                                                class="bg-white focus:outline-none border border-1 py-1 border-gray-300 {cellIndex===0?"text-center text-gray-700":""} px-3" >
+                                                contenteditable="true" 
+                                                                                               
+                                                bind:textContent={excelData[rowIndex + 1][cellIndex]}    
+                                                                                          
+                                                class="bg-white  focus:outline-none border border-1 py-1 border-gray-300 {cellIndex===0?"text-center text-gray-700":""} px-3" >
                                                 {cell}
                                               </td>
                                             {/each}
@@ -663,7 +717,7 @@
                                 </table>
                                 
                                 <!-- <div class="flex flex-row w-full">
-                                    {#each excelInit as item, index}
+                                    {#each excelData as item, index}
                                         <div class="bg-gray-100 border border-1 border-gray-300 px-3" style="width:180px;">{item}</div>
                                     {/each}
                                 </div> -->

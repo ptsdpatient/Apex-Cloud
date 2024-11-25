@@ -82,12 +82,12 @@ onMount(()=>{
         </div>
         <div class="flex flex-col justify-center h-full bg-gray-100 rounded-tr-3xl rounded-br-3xl w-1/2">
             {#if register}
-                <div class=" w-10/12  flex flex-col justify-around gap-4 px-5 py-5 mx-auto ">
+                <div class=" w-10/12  flex flex-col justify-around gap-4 px-5 py-5 mx-auto overflow-y-auto" style="max-height:85%">
                     <div class="text-center text-3xl my-2">Register </div>            
-                    <input bind:value={username} class="w-11/12 shadow-sm mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="username">        
-                    <input bind:value={email} class="w-11/12 shadow-sm mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="email" type="email">        
+                    <input bind:value={username} class="w-11/12 shadow-sm mx-auto  border border-1 border-gray-200 shadow-gray-300 px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="username">        
+                    <input bind:value={email} class="w-11/12  border border-1 border-gray-200 shadow-gray-300 shadow-sm mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="email" type="email">        
                     <div  class="relative flex flex-row items-center">
-                        <input bind:value={password} class=" w-11/12 shadow-sm mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="password" type={visible?"text":"password"}>
+                        <input bind:value={password} class=" w-11/12  border border-1 border-gray-200 shadow-gray-300 shadow-sm mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="password" type={visible?"text":"password"}>
                         <button class="absolute right-0 mr-4 pr-4 mx-auto" on:click={visible=!visible}><img alt="" src={visible?"/open.png":"/close.png"} ></button>
                     </div>
                     <button on:click={login} class="bg-blue-500 rounded-lg hover:shadow-lg w-2/5 py-2 text-xl px-5 text-white  mx-auto mt-2 transition-transform transform hover:scale-105 active:scale-95 focus:outline-none  ">Register</button>
@@ -111,10 +111,10 @@ onMount(()=>{
             <div class="mx-auto w-10/12 flex flex-col justify-around gap-4 px-5 py-5 ">
                 <div class="text-center text-3xl my-3">Login </div>
             
-                <input bind:value={username} class="w-11/12 shadow-sm mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="username">
+                <input bind:value={username} class="w-11/12 border border-1 border-gray-200 shadow-gray-300 shadow-sm mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="username">
            
                 <div class="relative flex flex-row items-center">
-                    <input bind:value={password} class=" w-11/12 shadow-sm mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="password" type={visible?"text":"password"}>
+                    <input bind:value={password} class=" w-11/12 shadow-sm border border-1 border-gray-200 shadow-gray-300 mx-auto px-3 py-2 rounded-lg focus:outline-none bg-white" placeholder="password" type={visible?"text":"password"}>
                     <button class="absolute right-0 mr-4 pr-4 mx-auto" on:click={visible=!visible}><img alt="" src={visible?"/open.png":"/close.png"} ></button>
                 </div>
     

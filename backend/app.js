@@ -7,6 +7,7 @@ const app = express();
 const QRCode = require('qrcode');
 const fileUpload = require('express-fileupload');
 const multer = require('multer');
+const xlsx = require('xlsx');
 
 // const port =  process.env.PORT;
 const cors = require('cors')
@@ -210,7 +211,7 @@ app.post('/api/confirmPayment',receipt.single('receipt'), async (req, res) => {
 app.post('/api/editFile',authenticateToken,async(req,res)=>{
     try {
         const {filePath,sub,name} =req.body
-        console.log(filePath,sub,name)
+        // console.log(filePath,sub,name)
         const data = await pool.query(`
             SELECT subscriptions.id AS "id", 
                 mountpoints.mountpoint AS "mnt"
@@ -218,9 +219,16 @@ app.post('/api/editFile',authenticateToken,async(req,res)=>{
                 JOIN mountpoints ON subscriptions.mountpoint = mountpoints.id
                 WHERE subscriptions.sub_name = $1 AND subscriptions.user_id = $2;
             `,[sub,req.id])
-            console.log('data : '+data.rows.length)
+            // console.log('data : '+data.rows.length)
             const fullPath = path.join(`${baseUploadDir}/${data.rows[0].mnt}/${data.rows[0].id}${filePath}/${name}`);
-            console.log(fullPath)
+            // console.log(fullPath)
+            const workbook = xlsx.readFile(fullPath);
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const excelData = xlsx.utils.sheet_to_json(sheet, { header: 1 }); 
+            // console.log('Excel Data:', excelData);
+            res.json({ data: excelData,done:true,sheetNames:workbook.SheetNames });
+
     }catch(err){
 
     }
