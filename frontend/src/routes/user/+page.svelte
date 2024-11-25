@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     
+
     let visible=false
     let username='Tanishq Dhote',email='tanishqbakka1@gmail.com'
     let token
@@ -9,8 +10,50 @@
     let uploadFolder=false
     let payment_id=''
     let files=[]
+
+    function generateExcelTable(rows, columns) {
+  // Function to generate Excel-style column headers (A, B, C, ..., AA, AB, ...)
+        function generateColumnHeaders(limit) {
+            const headers = [];
+            for (let i = 0; i < limit; i++) {
+            let header = '';
+            let index = i;
+            while (index >= 0) {
+                header = String.fromCharCode((index % 26) + 65) + header;
+                index = Math.floor(index / 26) - 1;
+            }
+            headers.push(header);
+            }
+            return headers;
+        }
+
+        // Check for valid rows and columns
+        if (rows <= 0 || columns <= 0) {
+            throw new Error('Rows and columns must be greater than 0');
+        }
+
+        // Generate column headers (e.g., A, B, C, ...)
+        const columnHeaders = generateColumnHeaders(columns);
+
+        // Initialize table as a 2D array with rows + 1 (for headers)
+        const table = new Array(rows + 1).fill(null).map(() => new Array(columns + 1).fill(''));
+
+        // Set column headers (first row)
+        for (let col = 1; col <= columns; col++) {
+            table[0][col] = columnHeaders[col - 1];
+        }
+
+        // Set row headers (first column, excluding the very first cell)
+        for (let row = 1; row <= rows; row++) {
+            table[row][0] = row.toString();
+        }
+
+        return table;
+        }
+    let excelInit = generateExcelTable(100,100);
+
     let url='http://localhost:2000/api'
-    let panelButtons=["Dashboard","Shared","Notifications","Bookmarks","Bin","Subscriptions","Help"] 
+    let panelButtons=["Dashboard","Excel","Docs","Notifications","Bookmarks","Bin","Subscriptions"] 
     let operationButtons=["Download","Move Files"]
     let currentFiles=[]
     let subscriptions=[]
@@ -20,8 +63,8 @@
     let showSubscriptions=false
     let folderName=''
     let captchaImage='';
-    let currentPanel=5
-    let payment=true
+    let currentPanel=1
+    let payment=false
     let purchaseStorageSpace=1
     let purchaseFullName=''
     let purchaseMobile=''
@@ -100,22 +143,22 @@
     }
 
     const handleFilesChange=(event)=>{
-        if(payment){
-            receipt = event.target.files;
-            for(const r of receipt){
-                alert(r.webkitRelativePath)
-            }
+        // if(payment){
+        //     receipt = event.target.files;
+        //     for(const r of receipt){
+        //         alert(r.webkitRelativePath)
+        //     }
 
-            for (const file of files) {
-                const formData = new FormData();
-                const fullPath = file.webkitRelativePath;
-                const directoryPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
-                formData.append('files', file);
-                formData.append('filePath',`${filePath}/${directoryPath}/`);
-                uploadFiles(formData)                
-            }            
-            return
-        }
+        //     for (const file of files) {
+        //         const formData = new FormData();
+        //         const fullPath = file.webkitRelativePath;
+        //         const directoryPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
+        //         formData.append('files', file);
+        //         formData.append('filePath',`${filePath}/${directoryPath}/`);
+        //         uploadFiles(formData)                
+        //     }            
+        //     return
+        // }
         files = event.target.files; 
 
         if(uploadFolder){
@@ -125,6 +168,7 @@
                 const directoryPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
                 formData.append('files', file);
                 formData.append('filePath',`${filePath}/${directoryPath}/`);
+                formData.append('sub',subscription)
                 uploadFiles(formData)                
             }            
         }else {
@@ -133,6 +177,7 @@
                 formData.append('files', file);
             });
             formData.append('filePath', filePath);
+            formData.append('sub',subscription)
             uploadFiles(formData)
         }
     };
@@ -307,11 +352,17 @@
                 alert("An error occurred while authenticating the token.");
             }
     }
+
+
+        function updateCell(rowIndex, cellIndex, event) {
+            excelInit[rowIndex][cellIndex] = event.target.textContent;
+        }
     
     
     onMount(()=>{
         token=localStorage.getItem("apex_cloud")
         authenticateToken()
+
         getSubscriptions()
         getCaptcha()
 
@@ -387,7 +438,7 @@
             
                 {#each panelButtons as button,index}
                     <button on:click={()=>{currentPanel=index;if(currentPanel===5)getCaptcha()}} class="{currentPanel==index?"bg-white":""} hover:bg-gray-100 focus:bg-white flex pl-5 py-2 flex-row items-center transform transition-all duration-100 focus:outline-none  hover:scale-105 outline-none focus:scale-105  rounded-3xl">
-                        <img class="" src='{button}.png' alt="">
+                        <img class="" style="width:24px;height:24px;" src='{button}.png' alt="">
                         <div class="pl-3 w-full text-left text-lg">{button}</div>                        
                     </button>
                 {/each}
@@ -395,6 +446,8 @@
 
             </div>
             
+                
+                
                 {#if currentPanel === 0}
                 <div class="w-3/4 flex p-2 m-2 flex-col bg-white rounded-2xl overflow-x-hidden">
 
@@ -509,6 +562,68 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+                {:else if currentPanel===1}
+
+                <!-- Excel Sheet Editor -->
+
+                <div class="w-3/4 flex p-2 flex-col pl-2 py-2 " style="height:100svh;">
+                    <div class="w-full h-full flex flex-col bg-white rounded-tl-2xl rounded-bl-2xl">
+                        <div class="w-full flex flex-row p-3 gap-3">
+                            <input placeholder="filename" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-black text-lg w-1/4 pl-4 rounded-lg">
+                            <button class="py-1 px-2 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="folder.png" alt=""><div>Open</div></button>
+                            <button class="py-1 px-2 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="save.png" alt=""><div>Save</div></button>
+                            <button class="py-1 px-2 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="download.png" alt=""><div>Download</div></button>
+                            <button class="py-1 px-2 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="print.png" alt=""><div>Print</div></button>
+                        </div>
+
+                        <div class="w-full h-full rounded-bl-2xl overflow-y-auto">
+                            <div class="overflow-y-hidden w-full overflow-y-hidden" style="min-width:1000vw;min-height:1000vh;">
+                                
+                                <table>
+                                    <thead>
+                                        <tr>
+                                          {#each excelInit[0] as header, headerIndex}
+                                            <th class="bg-white border border-gray-300 px-3 py-2" style="width: {headerIndex===0?"65":"180"}px;">
+                                              {header || ''}
+                                            </th>
+                                          {/each}
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {#each excelInit.slice(1) as row, rowIndex}
+                                          <tr>
+                                            {#each row as cell, cellIndex}
+                                              <td 
+                                                contenteditable={cellIndex===0?"false":"true"}
+                                                on:input={(event) => {updateCell(rowIndex + 1, cellIndex, event)}} 
+                                    
+                                                class="bg-white border border-1 py-1 border-gray-300 {cellIndex===0?"text-center":""} px-3" >
+                                                {cell}
+                                              </td>
+                                            {/each}
+                                          </tr>
+                                        {/each}
+                                      </tbody>
+                                </table>
+                                
+                                <!-- <div class="flex flex-row w-full">
+                                    {#each excelInit as item, index}
+                                        <div class="bg-gray-100 border border-1 border-gray-300 px-3" style="width:180px;">{item}</div>
+                                    {/each}
+                                </div> -->
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {:else if currentPanel===2}
+
+                <!-- Docs File Editor -->
+
+                <div class="w-3/4 flex p-2 flex-col bg-blue-500 " style="height:100svh;">
+                                
                 </div>
                 {:else if currentPanel===5}
                 <div class="w-3/4 flex p-2 flex-col  " style="height:100svh;">

@@ -207,30 +207,47 @@ app.post('/api/confirmPayment',receipt.single('receipt'), async (req, res) => {
 });
 
 
-app.post('/api/upload',authenticateToken, (req, res) => {
+app.post('/api/upload',authenticateToken, async(req, res) => {
+
+    console.log(req.id)
+    const {filePath,sub} = req.body
+    console.log(filePath,sub)
+    try{
+        const data = await pool.query(`
+                SELECT subscriptions.id AS "id", 
+                    mountpoints.mountpoint AS "mnt"
+                    FROM subscriptions 
+                    JOIN mountpoints ON subscriptions.mountpoint = mountpoints.id 
+                    WHERE subscriptions.sub_name = $1 AND subscriptions.user_id = $2;
+            `,[sub,req.id])
+            console.log('data : '+data.rows.length)
+            const fullUploadPath = path.join(`${baseUploadDir}/${data.rows[0].mnt}/${data.rows[0].id}${filePath}`);
+
+            console.log(fullUploadPath)
+            fs.mkdirSync(fullUploadPath, { recursive: true });
+
+            if (!req.files || Object.keys(req.files).length === 0) {
+                return res.status(400).send('No files were uploaded.');
+            }
+
+            const uploadedFiles = req.files.files; 
+
+            if (!Array.isArray(uploadedFiles)) {
+                uploadedFiles.mv(path.join(fullUploadPath, uploadedFiles.name), (err) => {
+                    if (err) console.log(err);
+                });
+            } else { 
+                uploadedFiles.forEach(file => {
+                    file.mv(path.join(fullUploadPath, file.name), (err) => {
+                        if (err) console.log(err);
+                    });
+                });
+            }
+    }catch(err){
+        console.log("error occurred when finding subscription "+err)
+    }
+
     
-    const filePath = req.body.filePath; 
-    const fullUploadPath = path.join(baseUploadDir, filePath);
-
-    fs.mkdirSync(fullUploadPath, { recursive: true });
-
-    if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).send('No files were uploaded.');
-    }
-
-    const uploadedFiles = req.files.files; 
-
-    if (!Array.isArray(uploadedFiles)) {
-        uploadedFiles.mv(path.join(fullUploadPath, uploadedFiles.name), (err) => {
-            if (err) console.log(err);
-        });
-    } else { 
-        uploadedFiles.forEach(file => {
-            file.mv(path.join(fullUploadPath, file.name), (err) => {
-                if (err) console.log(err);
-            });
-        });
-    }
 
     // res.status(200).json({ message: 'Files uploaded successfully' });
 });
