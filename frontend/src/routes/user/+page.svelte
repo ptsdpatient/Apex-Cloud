@@ -1,6 +1,10 @@
 <script>
     import { onMount } from 'svelte';
     import * as XLSX from 'xlsx';
+    import autoTable from "jspdf-autotable";
+
+    import { jsPDF } from "jspdf";
+
 
     let workbookName=''
     let visible=false
@@ -123,7 +127,7 @@
 
     // 1. Handle the header row (the first row with column labels) only once
     if (extendedData.length === 0) {
-        const headerRow = ['#']; // Initialize top-left cell empty for the header row
+        const headerRow = [' ']; // Initialize top-left cell empty for the header row
         for (let col = 0; col < targetCols - 1; col++) {
             headerRow.push(columnHeaders[col]);
         }
@@ -296,6 +300,25 @@
     function logout(){
         localStorage.removeItem("apex_cloud")
         window.location="/"
+    }
+
+    function printSheet(){
+        const doc = new jsPDF();
+        
+        let modifiedData = workbook[sheetIndex].data.slice(1).map(row => row.slice(1));
+
+        console.log(modifiedData)
+        
+        autoTable(doc, {
+            // head: modifiedData[0], // Use the first array as the header
+            body: modifiedData, // Use the remaining arrays as table rows
+            startY: 20, // Starting Y position of the table
+            theme: 'grid', // Table style (optional)
+            // headStyles: { fillColor: [0, 102, 204] }, // Style the header (optional)
+            margin: { top: 20 } // Adjust top margin (optional) 
+        });
+
+        doc.save(`${!workbookName?'example':workbookName}.pdf`);
     }
 
 
@@ -733,7 +756,7 @@
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="folder.png" alt=""><div>Open</div></button>
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="save.png" alt=""><div>Save</div></button>
                             <button on:click={downloadExcelWorkbook} class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="download.png" alt=""><div>Download</div></button>
-                            <button on:click={()=>{alert(workbook[sheetIndex].data)}} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="print.png" alt=""><div>Print</div></button>
+                            <button on:click={printSheet} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="print.png" alt=""><div>Print</div></button>
                             <button on:click={() => addRows(10)} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Rows</div></button>
                             <button on:click={() => addColumns(5)} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Columns</div></button>
 

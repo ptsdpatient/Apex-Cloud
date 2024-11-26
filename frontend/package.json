@@ -29,6 +29,8 @@
 		"vitest": "^2.0.4"
 	},
 	"dependencies": {
+		"jspdf": "^2.5.2",
+		"jspdf-autotable": "^3.8.4",
 		"xlsx": "^0.18.5"
 	}
 }
