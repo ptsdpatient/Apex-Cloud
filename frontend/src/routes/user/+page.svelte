@@ -172,61 +172,18 @@
 
 
     function downloadExcelWorkbook(){
-        const jsonData = [
-        { "Name": "John", "Age": 30, "City": "New York" },
-        { "Name": "Jane", "Age": 25, "City": "London" },
-        { "Name": "Alice", "Age": 28, "City": "Paris" }
-    ];
 
-    // Create a new workbook
     const downloadWorkbook = XLSX.utils.book_new();
     let downloadIndex=0
-
-    // const worksheet = XLSX.utils.json_to_sheet(jsonData);
-    // XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
-
-
-    // workbook.forEach(sheet =>{
-    //     const worksheet = XLSX.utils.json_to_sheet(sheet.data.slice(1));
-    //     XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
-    //     downloadIndex++
-    // })
-
-    // workbook.forEach((sheet) => {
-    //     const modifiedData = sheet.data.slice(1).map(row => row.slice(1)); 
-    //     console.log(modifiedData)
-    //     const worksheet = XLSX.utils.json_to_sheet(modifiedData, { header: modifiedData[0] });
-    //     XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
-    //     downloadIndex++;
-    // });
-
+    let modifiedData=[]
     workbook.forEach((sheet) => {
-    // Assuming sheet.data[0] is the header row
-    const headers = sheet.data[0]; // the header row
-    let modifiedData = sheet.data.slice(1).map((row) => {
-        // Create an object for each row, mapping headers to their respective values
-        const rowData = {};
-        row.forEach((cell, index) => {
-            rowData[headers[index]] = cell; // map column name to cell value
-        });
-        return rowData; // return the row as an object
+        modifiedData = sheet.data.slice(1).map(row => row.slice(1));
+        const worksheet = XLSX.utils.aoa_to_sheet(modifiedData);
+        XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
+        downloadIndex++;
     });
 
-    console.log(modifiedData);
-    modifiedData = sheet.data.slice(1).map(row => row.slice(1));
-    // Create the worksheet with the modified data, passing in the header row
-    // const worksheet = XLSX.utils.json_to_sheet(modifiedData);
-    // alert(worksheet[0])
-    const worksheet = XLSX.utils.aoa_to_sheet(modifiedData);
-
-    // Append the sheet to the workbook
-    XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
-    downloadIndex++;
-});
-
-
     XLSX.writeFile(downloadWorkbook, `${!workbookName?"newWorkbook":workbookName}.xlsx`);
-
     console.log("Downloading Excel workbook...");
     }
 
