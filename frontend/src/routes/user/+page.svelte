@@ -14,9 +14,7 @@
         {
     name: 'Sheet 1',
     data: [
-      ['Header1', 'Header2', 'Header3'],  
-      ['Data1', 'Data2', 'Data3'],       
-      ['Data4', 'Data5', 'Data6'],       
+      ["w"],[],[],[] 
     ]
   },
     ]
@@ -28,8 +26,8 @@
     }
 
     function addColumns(numCols = 5) {
-        const targetCols = excelData[0].length + numCols;
-        workbook[sheetIndex].data = extendExcelData(workbook[sheetIndex].data, workbook[sheetIndex].data.length, targetCols);
+    const targetCols = workbook[sheetIndex].data[0].length + numCols;
+    workbook[sheetIndex].data = extendExcelData(workbook[sheetIndex].data, workbook[sheetIndex].data.length, targetCols, true);
     }
 
     
@@ -68,6 +66,8 @@
     }
 
     workbook[0].data = generateExcelTable(100,100);
+    workbook[0].data=extendExcelData([],100,100,true)
+
 
     let url='http://localhost:2000/api'
     let panelButtons=["Dashboard","Excel","Docs","Notifications","Bookmarks","Bin","Subscriptions"] 
@@ -94,7 +94,10 @@
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 49 49" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h49v49H0z"/><path stroke="#000000" d="M4 4.5h7m1 0h1m6 0h5m2 0h3m1 0h1m1 0h1m3 0h1m1 0h7M4 5.5h1m5 0h1m3 0h5m1 0h2m1 0h1m8 0h1m1 0h3m1 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m2 0h1m1 0h3m1 0h2m2 0h1m1 0h1m3 0h1m2 0h3m1 0h1m1 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m1 0h1m1 0h3m1 0h1m2 0h3m1 0h3m2 0h2m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m1 0h2m1 0h4m3 0h1m1 0h4m1 0h3m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m1 0h1m1 0h2m1 0h1m5 0h1m5 0h1m2 0h1m1 0h3m1 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M12 11.5h2m1 0h4m1 0h2m3 0h3m3 0h1m1 0h4M4 12.5h1m3 0h1m1 0h3m1 0h2m1 0h1m3 0h3m1 0h2m1 0h1m2 0h4m2 0h5m2 0h1M4 13.5h1m6 0h1m2 0h2m1 0h1m1 0h2m1 0h1m1 0h4m1 0h5m4 0h1m1 0h1m1 0h3M5 14.5h2m2 0h2m1 0h2m3 0h2m2 0h2m1 0h1m2 0h3m1 0h1m1 0h2m1 0h1m1 0h1m2 0h1m1 0h2M5 15.5h5m4 0h3m1 0h9m4 0h1m1 0h2m2 0h2m2 0h1m2 0h1M6 16.5h3m1 0h3m3 0h1m1 0h1m1 0h4m1 0h2m1 0h1m1 0h3m2 0h2m6 0h2M4 17.5h1m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m2 0h1m2 0h2m4 0h1m3 0h3m3 0h2m3 0h1M5 18.5h1m1 0h2m1 0h3m1 0h2m2 0h4m2 0h2m5 0h1m1 0h3m3 0h4m1 0h1M6 19.5h1m4 0h1m1 0h1m1 0h1m4 0h3m2 0h1m2 0h1m1 0h7m2 0h1m1 0h1m1 0h2M5 20.5h1m1 0h1m2 0h1m2 0h4m2 0h1m1 0h7m5 0h1m2 0h1m4 0h1m1 0h1M4 21.5h1m1 0h1m1 0h2m1 0h1m1 0h1m4 0h1m3 0h2m1 0h1m1 0h1m1 0h2m1 0h2m4 0h1m1 0h2m2 0h1M4 22.5h2m1 0h1m2 0h1m2 0h1m1 0h7m5 0h1m3 0h1m2 0h1m1 0h2m1 0h2m3 0h1M6 23.5h1m1 0h1m3 0h1m1 0h3m1 0h1m2 0h3m2 0h3m1 0h3m5 0h4m1 0h2M5 24.5h1m1 0h4m2 0h1m2 0h1m2 0h1m2 0h2m2 0h1m1 0h4m4 0h1m4 0h1M4 25.5h1m4 0h1m5 0h1m3 0h3m5 0h1m1 0h1m1 0h1m1 0h2m3 0h2m3 0h2M5 26.5h4m1 0h1m2 0h4m1 0h1m1 0h3m2 0h3m3 0h1m2 0h1m3 0h2m1 0h1m2 0h1M6 27.5h3m2 0h1m7 0h4m2 0h1m1 0h2m1 0h1m1 0h3m2 0h1m2 0h1m2 0h1M5 28.5h1m2 0h1m1 0h1m1 0h5m3 0h3m1 0h3m5 0h2m1 0h3m4 0h1M5 29.5h4m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m4 0h3m1 0h3m6 0h5m1 0h1M5 30.5h1m1 0h2m1 0h1m2 0h3m4 0h1m3 0h5m1 0h2m1 0h2m4 0h1m4 0h1M6 31.5h1m4 0h1m2 0h2m3 0h3m1 0h1m1 0h1m1 0h1m3 0h4m2 0h1m3 0h1m2 0h1M4 32.5h3m1 0h1m1 0h1m2 0h3m5 0h7m2 0h1m4 0h1m1 0h2m2 0h1M4 33.5h1m3 0h2m2 0h1m3 0h1m2 0h2m2 0h1m1 0h2m1 0h3m1 0h1m2 0h2m2 0h3M6 34.5h3m1 0h2m4 0h2m4 0h2m3 0h4m1 0h3m1 0h1m3 0h3m1 0h1M6 35.5h1m4 0h1m2 0h3m1 0h1m2 0h1m1 0h3m1 0h1m2 0h1m2 0h2m4 0h1m1 0h1m1 0h2M4 36.5h2m1 0h5m1 0h1m3 0h2m2 0h1m2 0h1m1 0h1m1 0h2m1 0h1m3 0h6M12 37.5h1m2 0h1m3 0h1m1 0h2m3 0h1m3 0h1m1 0h1m1 0h3m3 0h1M4 38.5h7m1 0h2m1 0h3m2 0h1m1 0h1m1 0h8m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1M4 39.5h1m5 0h1m3 0h6m3 0h3m1 0h3m3 0h4m3 0h2m2 0h1M4 40.5h1m1 0h3m1 0h1m1 0h2m2 0h5m2 0h2m2 0h1m1 0h1m4 0h7M4 41.5h1m1 0h3m1 0h1m3 0h3m1 0h1m1 0h1m1 0h1m3 0h1m3 0h1m1 0h1m3 0h2m1 0h1m1 0h3M4 42.5h1m1 0h3m1 0h1m2 0h1m3 0h5m2 0h1m1 0h8m5 0h1m4 0h1M4 43.5h1m5 0h1m3 0h1m1 0h1m3 0h4m1 0h1m1 0h2m2 0h1m1 0h1m1 0h2m1 0h1m4 0h2M4 44.5h7m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m1 0h4m4 0h1m2 0h1m1 0h1m2 0h3"/></svg>`
 
 
-    function extendExcelData(data, targetRows, targetCols) {
+    
+
+    function extendExcelData(data, targetRows, targetCols, isColumnExtension) {
+    // Function to generate column headers like A, B, C, D, etc.
     function generateColumnHeaders(limit) {
         const headers = [];
         for (let i = 0; i < limit; i++) {
@@ -110,41 +113,59 @@
     }
 
     const currentRows = data.length;
-    // Ensure data is properly formatted as a 2D array, and calculate the number of columns
-    const currentCols = currentRows > 0 ? Math.max(...data.map(row => Array.isArray(row) ? row.length : 0)) : 0;
+    const currentCols = data[0] ? data[0].length : 0;
 
-    // Validate targetCols to make sure it's a positive integer
-    targetCols = Math.max(targetCols, 1); // Ensure targetCols is at least 1
-
-    // Generate column headers based on the maximum of targetCols and currentCols
-    const columnHeaders = generateColumnHeaders(Math.max(targetCols - 1, currentCols));
+    // Generate column headers based on targetCols
+    const columnHeaders = generateColumnHeaders(Math.max(targetCols, currentCols) - 1);
 
     const extendedData = [];
 
-    // Create header row
-    const headerRow = ['#'];
-    for (let col = 0; col < Math.max(currentCols, targetCols - 1); col++) {
-        headerRow.push(columnHeaders[col]);
+    // 1. Handle the header row (the first row with column labels) only once
+    if (extendedData.length === 0) {
+        const headerRow = ['#']; // Initialize top-left cell empty for the header row
+        for (let col = 0; col < targetCols - 1; col++) {
+            headerRow.push(columnHeaders[col]);
+        }
+        extendedData.push(headerRow);
     }
-    extendedData.push(headerRow);
 
-    // Add data rows with appropriate extension
-    for (let i = 0; i < targetRows; i++) {
-        const newRow = Array(Math.max(currentCols, targetCols)).fill('');
+    // 2. Start adding the data starting from row 2 (i.e., B2, C2, etc.)
+    for (let i = 0; i < currentRows; i++) {
+        const newRow = Array(targetCols).fill('');
+        newRow[0] = (i + 1).toString(); // Reference number for the row (1, 2, 3, etc.)
 
-        newRow[0] = (i + 1).toString(); // First column is the row number
-
-        if (i < currentRows) {
-            for (let j = 0; j < currentCols; j++) {
-                newRow[j + 1] = data[i][j] || ''; // Fill data or empty string if undefined
-            }
+        // If data exists for this row, fill it; otherwise leave cells empty
+        for (let j = 0; j < currentCols; j++) {
+            newRow[j + 1] = data[i][j]; // Start filling from column B (index 1)
         }
 
         extendedData.push(newRow);
     }
-    // alert(extendedData)
+
+    // 3. Adjust each row to ensure it matches the target number of columns
+    for (let i = 0; i < extendedData.length; i++) {
+        const row = extendedData[i];
+        for (let col = row.length; col < targetCols; col++) {
+            row[col] = '';
+        }
+    }
+
+    // 4. If the target number of rows is greater than the current rows, add more empty rows
+    if (targetRows > currentRows) {
+        for (let i = currentRows; i < targetRows; i++) {
+            const newRow = Array(targetCols).fill('');
+            newRow[0] = (i + 1).toString(); // Reference number for the row
+            extendedData.push(newRow);
+        }
+    }
+
     return extendedData;
 }
+
+
+
+
+
 
 
 
@@ -396,10 +417,8 @@
                 
                 workbook.forEach(sheet => {
                     try{
-                        alert(JSON.stringify(sheet.data, null, 2))
-                        sheet.data = extendExcelData(sheet.data, 100, 50);
-                        alert(sheet.data)
-
+                        console.log(JSON.stringify(sheet.data, null, 2))
+                        sheet.data = extendExcelData(sheet.data, 100, 50,true);
                     }catch(err){
                         alert('error occured : '+err)
                     }
@@ -731,7 +750,7 @@
                                         <thead>
                                             <tr>
                                             {#each workbook[sheetIndex].data[0] as header, headerIndex}
-                                                <th class="bg-white border border-gray-300 font-semibold text-gray-700 px-3 py-2" style="width: {headerIndex===0?"65":"180"}px;">
+                                                <th class="bg-white border border-gray-300 font-semibold text-gray-700 px-3 py-2" style="width: {headerIndex===0?"50":"180"}px;">
                                                 {header || ''}
                                                 </th>
                                             {/each}
