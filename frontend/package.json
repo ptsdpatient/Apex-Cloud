@@ -29,5 +29,6 @@
 		"vitest": "^2.0.4"
 	},
 	"dependencies": {
+		"xlsx": "^0.18.5"
 	}
 }

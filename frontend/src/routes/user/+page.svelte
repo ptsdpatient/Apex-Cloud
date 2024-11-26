@@ -1,7 +1,8 @@
 <script>
     import { onMount } from 'svelte';
-    
+    import * as XLSX from 'xlsx';
 
+    let workbookName=''
     let visible=false
     let username='Tanishq Dhote',email='tanishqbakka1@gmail.com'
     let token
@@ -170,11 +171,35 @@
 
 
 
-    function downloadSheet(data){
-        const worksheet = XLSX.utils.json_to_sheet(data);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-        XLSX.writeFile(workbook, `aa.xlsx`);
+    function downloadExcelWorkbook(){
+        const jsonData = [
+        { "Name": "John", "Age": 30, "City": "New York" },
+        { "Name": "Jane", "Age": 25, "City": "London" },
+        { "Name": "Alice", "Age": 28, "City": "Paris" }
+    ];
+
+    // Create a new workbook
+    const downloadWorkbook = XLSX.utils.book_new();
+    let downloadIndex=0
+
+
+    // workbook.forEach(sheet =>{
+    //     const worksheet = XLSX.utils.json_to_sheet(sheet.data.slice(1));
+    //     XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
+    //     downloadIndex++
+    // })
+
+    workbook.forEach((sheet) => {
+        const modifiedData = sheet.data.slice(1).map(row => row.slice(1)); 
+        const worksheet = XLSX.utils.json_to_sheet(modifiedData);
+        XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
+        downloadIndex++;
+    });
+
+
+    XLSX.writeFile(downloadWorkbook, `${!workbookName?"newWorkbook":workbookName}.xlsx`);
+
+    console.log("Downloading Excel workbook...");
     }
 
     async function confirmCaptcha(){
@@ -719,10 +744,10 @@
                 <div class="w-3/4 flex p-2 flex-col pl-2 py-2 gap-3" style="height:100svh;">
                     <div class="w-full h-full flex flex-col bg-white rounded-tl-2xl rounded-bl-2xl">
                         <div class="w-full flex flex-row p-3 gap-3">
-                            <input placeholder="filename" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-gray-400 text-lg w-1/4 pl-4 rounded-lg">
+                            <input bind:value={workbookName} placeholder="filename" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-gray-400 text-lg w-1/4 pl-4 rounded-lg">
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="folder.png" alt=""><div>Open</div></button>
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="save.png" alt=""><div>Save</div></button>
-                            <button class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="download.png" alt=""><div>Download</div></button>
+                            <button on:click={downloadExcelWorkbook} class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="download.png" alt=""><div>Download</div></button>
                             <button on:click={()=>{alert(workbook[sheetIndex].data)}} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="print.png" alt=""><div>Print</div></button>
                             <button on:click={() => addRows(10)} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Rows</div></button>
                             <button on:click={() => addColumns(5)} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Columns</div></button>
