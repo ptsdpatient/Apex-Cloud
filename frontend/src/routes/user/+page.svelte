@@ -10,24 +10,26 @@
     let uploadFolder=false
     let payment_id=''
     let files=[]
+    let workbook=[
+        {
+    name: 'Sheet 1',
+    data: [
+      ['Header1', 'Header2', 'Header3'],  
+      ['Data1', 'Data2', 'Data3'],       
+      ['Data4', 'Data5', 'Data6'],       
+    ]
+  },
+    ]
     let excelSheets=[
-        'Sheet 1.xlsx',
-        'Sheet 2.xlsx',
-        'Sheet 3.xlsx',
-        'Sheet 1.xlsx',
-        'Sheet 2.xlsx',
-        'Sheet 3.xlsx','Sheet 1.xlsx',
-        'Sheet 2.xlsx',
-        'Sheet 3.xlsx', 
+        'Sheet 1'        
     ]
     function addRows(numRows = 10) {
-        excelData = extendExcelData(excelData, excelData.length + numRows, excelData[0].length);
+        workbook[sheetIndex].data = extendExcelData(workbook[sheetIndex].data, workbook[sheetIndex].data.length + numRows, workbook[sheetIndex].data[0].length);
     }
 
-  // Function to extend columns
     function addColumns(numCols = 5) {
         const targetCols = excelData[0].length + numCols;
-        excelData = extendExcelData(excelData, excelData.length, targetCols);
+        workbook[sheetIndex].data = extendExcelData(workbook[sheetIndex].data, workbook[sheetIndex].data.length, targetCols);
     }
 
     
@@ -65,7 +67,7 @@
         return table;
     }
 
-    let excelData = generateExcelTable(100,100);
+    workbook[0].data = generateExcelTable(100,100);
 
     let url='http://localhost:2000/api'
     let panelButtons=["Dashboard","Excel","Docs","Notifications","Bookmarks","Bin","Subscriptions"] 
@@ -77,6 +79,7 @@
     let filePath='/'+currentDirectory.join("/")
     let showSubscriptions=false
     let folderName=''
+    let sheetIndex=0
     let captchaImage='';
     let currentPanel=1
     let payment=false
@@ -92,7 +95,7 @@
 
 
     function extendExcelData(data, targetRows, targetCols) {
-        function generateColumnHeaders(limit) {
+    function generateColumnHeaders(limit) {
         const headers = [];
         for (let i = 0; i < limit; i++) {
             let header = '';
@@ -107,36 +110,51 @@
     }
 
     const currentRows = data.length;
-    const currentCols = Math.max(...data.map(row => row.length));
+    // Ensure data is properly formatted as a 2D array, and calculate the number of columns
+    const currentCols = currentRows > 0 ? Math.max(...data.map(row => Array.isArray(row) ? row.length : 0)) : 0;
 
+    // Validate targetCols to make sure it's a positive integer
+    targetCols = Math.max(targetCols, 1); // Ensure targetCols is at least 1
+
+    // Generate column headers based on the maximum of targetCols and currentCols
     const columnHeaders = generateColumnHeaders(Math.max(targetCols - 1, currentCols));
 
     const extendedData = [];
 
-    const headerRow = ['#']; 
+    // Create header row
+    const headerRow = ['#'];
     for (let col = 0; col < Math.max(currentCols, targetCols - 1); col++) {
         headerRow.push(columnHeaders[col]);
     }
     extendedData.push(headerRow);
 
+    // Add data rows with appropriate extension
     for (let i = 0; i < targetRows; i++) {
         const newRow = Array(Math.max(currentCols, targetCols)).fill('');
 
-        newRow[0] = (i + 1).toString();
+        newRow[0] = (i + 1).toString(); // First column is the row number
 
         if (i < currentRows) {
             for (let j = 0; j < currentCols; j++) {
-                newRow[j + 1] = data[i][j] || '';
+                newRow[j + 1] = data[i][j] || ''; // Fill data or empty string if undefined
             }
         }
 
         extendedData.push(newRow);
     }
-
+    // alert(extendedData)
     return extendedData;
 }
 
 
+
+
+    function downloadSheet(data){
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+        XLSX.writeFile(workbook, `aa.xlsx`);
+    }
 
     async function confirmCaptcha(){
         try{
@@ -368,11 +386,33 @@
     
                 const data = await response.json();
                 
-                if(response.ok || data.done){
-                    excelSheets = data.sheetNames                    
-                    excelData = extendExcelData(data.data, 100, 50);
-                    currentPanel=1
-                };                                  
+                workbook = Object.keys(data).map(sheetKey => ({
+                    name: data[sheetKey].name,
+                    data: data[sheetKey].data
+                }));
+                
+
+                excelSheets=[]
+                
+                workbook.forEach(sheet => {
+                    try{
+                        alert(JSON.stringify(sheet.data, null, 2))
+                        sheet.data = extendExcelData(sheet.data, 100, 50);
+                        alert(sheet.data)
+
+                    }catch(err){
+                        alert('error occured : '+err)
+                    }
+                    
+                    excelSheets.push(sheet.name);
+                });
+
+
+                sheetIndex=0                
+                // excelData = extendExcelData(data.data, 100, 50);
+                currentPanel=1    
+                workbook=[...workbook]
+                                   
 
             } catch (error) {
                 // console.error('Error during token authentication:', error);
@@ -452,10 +492,8 @@
     onMount(()=>{
         token=localStorage.getItem("apex_cloud")
         authenticateToken()
-
         getSubscriptions()
         getCaptcha()
-
     })
     </script>
     
@@ -610,6 +648,7 @@
     
     
                         <div class="bg-white flex flex-grow overflow-y-auto" style="height:0vh;">
+                            
                             <table class="w-full border-collapse text-xl overflow-y-auto">
                                 <thead class="text-black bg-white my-4">
                                 <tr class="shadow-sm">
@@ -650,6 +689,7 @@
                                     {/each}
                                 </tbody>
                             </table>
+                            
                         </div>
                     </div>
                 </div>
@@ -660,11 +700,11 @@
                 <div class="w-3/4 flex p-2 flex-col pl-2 py-2 gap-3" style="height:100svh;">
                     <div class="w-full h-full flex flex-col bg-white rounded-tl-2xl rounded-bl-2xl">
                         <div class="w-full flex flex-row p-3 gap-3">
-                            <input placeholder="filename" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-black text-lg w-1/4 pl-4 rounded-lg">
+                            <input placeholder="filename" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-gray-400 text-lg w-1/4 pl-4 rounded-lg">
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="folder.png" alt=""><div>Open</div></button>
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="save.png" alt=""><div>Save</div></button>
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="download.png" alt=""><div>Download</div></button>
-                            <button class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="print.png" alt=""><div>Print</div></button>
+                            <button on:click={()=>{alert(workbook[sheetIndex].data)}} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="print.png" alt=""><div>Print</div></button>
                             <button on:click={() => addRows(10)} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Rows</div></button>
                             <button on:click={() => addColumns(5)} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Columns</div></button>
 
@@ -673,12 +713,12 @@
 
                         <div class="w-full flex flex-row pt-2 pl-4  justify-between pb-4">
                             <div class="flex flex-row gap-3 pb-1 overflow-x-auto" style="max-width:55%">
-                                {#each excelSheets as sheet}
-                                    <button class="px-5 whitespace-nowrap inline-block text-left py-1  rounded-xl hover:bg-gray-100 border-gray-200">{sheet}</button>
+                                {#each excelSheets as sheet,index}
+                                    <button on:click={()=>{return sheetIndex=index}} class="px-5 whitespace-nowrap {sheetIndex===index?"bg-gray-100":""} inline-block text-left py-1  rounded-xl hover:bg-gray-100 border-gray-200">{sheet}</button>
                                 {/each}
                             </div>
                             <div class="flex flex-row justify-around">
-                                <input placeholder="sheet name" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-black text-lg w-1/2 pl-4 rounded-lg">
+                                <input placeholder="sheet name" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-gray-400 text-lg w-1/2 pl-4 rounded-lg">
                                 <button class="py-1 px-2 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Create Sheet</div></button>
                             </div>
                         </div>
@@ -687,34 +727,31 @@
 
                         <div class="w-full h-full rounded-bl-2xl overflow-y-auto">
                             <div class="overflow-y-hidden w-full overflow-y-hidden" style="min-width:1000vw;min-height:1000vh;">
-                                
-                                <table>
-                                    <thead>
-                                        <tr>
-                                          {#each excelData[0] as header, headerIndex}
-                                            <th class="bg-white border border-gray-300 font-semibold text-gray-700 px-3 py-2" style="width: {headerIndex===0?"65":"180"}px;">
-                                              {header || ''}
-                                            </th>
-                                          {/each}
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {#each excelData.slice(1) as row, rowIndex}
-                                          <tr>
-                                            {#each row as cell, cellIndex}
-                                              <td 
-                                                contenteditable="true" 
-                                                                                               
-                                                bind:textContent={excelData[rowIndex + 1][cellIndex]}    
-                                                                                          
-                                                class="bg-white  focus:outline-none border border-1 py-1 border-gray-300 {cellIndex===0?"text-center text-gray-700":""} px-3" >
-                                                {cell}
-                                              </td>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                            {#each workbook[sheetIndex].data[0] as header, headerIndex}
+                                                <th class="bg-white border border-gray-300 font-semibold text-gray-700 px-3 py-2" style="width: {headerIndex===0?"65":"180"}px;">
+                                                {header || ''}
+                                                </th>
                                             {/each}
-                                          </tr>
-                                        {/each}
-                                      </tbody>
-                                </table>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {#each workbook[sheetIndex].data.slice(1) as row, rowIndex}
+                                            <tr>
+                                                {#each row as cell, cellIndex}
+                                                <td contenteditable="true" 
+
+                                                    class="bg-white  focus:outline-none border border-1 py-1 border-gray-300 {cellIndex===0?"text-center text-gray-700":""} px-3" >
+                                                    {cell}
+                                                </td>
+                                                {/each}
+                                            </tr>
+                                            {/each}
+                                        </tbody>
+                                    </table>
+                                    
                                 
                                 <!-- <div class="flex flex-row w-full">
                                     {#each excelData as item, index}
