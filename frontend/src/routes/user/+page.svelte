@@ -182,6 +182,9 @@
     const downloadWorkbook = XLSX.utils.book_new();
     let downloadIndex=0
 
+    // const worksheet = XLSX.utils.json_to_sheet(jsonData);
+    // XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
+
 
     // workbook.forEach(sheet =>{
     //     const worksheet = XLSX.utils.json_to_sheet(sheet.data.slice(1));
@@ -189,12 +192,37 @@
     //     downloadIndex++
     // })
 
+    // workbook.forEach((sheet) => {
+    //     const modifiedData = sheet.data.slice(1).map(row => row.slice(1)); 
+    //     console.log(modifiedData)
+    //     const worksheet = XLSX.utils.json_to_sheet(modifiedData, { header: modifiedData[0] });
+    //     XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
+    //     downloadIndex++;
+    // });
+
     workbook.forEach((sheet) => {
-        const modifiedData = sheet.data.slice(1).map(row => row.slice(1)); 
-        const worksheet = XLSX.utils.json_to_sheet(modifiedData);
-        XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
-        downloadIndex++;
+    // Assuming sheet.data[0] is the header row
+    const headers = sheet.data[0]; // the header row
+    let modifiedData = sheet.data.slice(1).map((row) => {
+        // Create an object for each row, mapping headers to their respective values
+        const rowData = {};
+        row.forEach((cell, index) => {
+            rowData[headers[index]] = cell; // map column name to cell value
+        });
+        return rowData; // return the row as an object
     });
+
+    console.log(modifiedData);
+    modifiedData = sheet.data.slice(1).map(row => row.slice(1));
+    // Create the worksheet with the modified data, passing in the header row
+    // const worksheet = XLSX.utils.json_to_sheet(modifiedData);
+    // alert(worksheet[0])
+    const worksheet = XLSX.utils.aoa_to_sheet(modifiedData);
+
+    // Append the sheet to the workbook
+    XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
+    downloadIndex++;
+});
 
 
     XLSX.writeFile(downloadWorkbook, `${!workbookName?"newWorkbook":workbookName}.xlsx`);
@@ -209,7 +237,7 @@
                     headers: {
                         'Authorization': `Bearer ${token}`, 
                         'Content-Type': 'application/json'
-                    }, body: JSON.stringify({ 
+                    }, body: JSON.stringify({
                         solution:purchaseCaptcha,
                         storage:purchaseStorageSpace,
                         amount:purchaseStorageSpace*spaceRate,

@@ -4,26 +4,32 @@
 		<style>
 				
 			.truncate {
-				white-space: nowrap;       /* Prevents text from wrapping to a new line */
-				overflow: hidden;          /* Hides any overflow */
-				text-overflow: ellipsis;   /* Adds "..." at the end if text overflows */
+				white-space: nowrap;       
+				overflow: hidden;          
+				text-overflow: ellipsis;   
 			}
 			::-webkit-scrollbar {
 				width: 5px; 
-				height:5px;
+				height:10px;
 			}
 
+		
 			::-webkit-scrollbar-track {
-				background: #f1f1f1; /* Background of the scrollbar track */
+				background: #f1f1f1; 
 			}
 
 			::-webkit-scrollbar-thumb {
-				background-color: #b8b8b8; /* Scrollbar thumb color */
-				border-radius: 50px; /* Rounded corners for the thumb */
+				background-color: #b8b8b8; 
+				border-radius: 50px; 
 			}
 
 			::-webkit-scrollbar-thumb:hover {
-				background-color: #aeaeae; /* Darker color on hover */
+				background-color: #aeaeae; 
+				cursor:grab;
+			}
+			::-webkit-scrollbar-thumb:focus {
+				background-color: #aeaeae; 
+				cursor:grabing;
 			}
 		</style>
 		<meta charset="utf-8" />
