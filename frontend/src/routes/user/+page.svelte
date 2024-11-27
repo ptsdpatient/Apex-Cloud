@@ -18,15 +18,25 @@
     let files=[]
     let workbook=[
         {
-    name: 'Sheet 1',
-    data: [
-      ["w"],[],[],[] 
-    ]
-  },
+            name: 'Sheet 1',
+            data: [
+            ["column1","column2","column3","column4"],["item1","item2","item3","item4"],["item1","item2","item3","item4"],["item1","item2","item3","item4"] 
+            ]
+        },
     ]
     let excelSheets=[
         'Sheet 1'        
     ]
+
+    function deleteThisSheet(index){
+        excelSheets.splice(index,1)
+        workbook.splice(index,1)
+        if(index==0)sheetIndex++;
+         else sheetIndex--;
+        excelSheets=[...excelSheets]
+        workbook=[...workbook]
+    }
+
     function addRows(numRows = 10) {
         workbook[sheetIndex].data = extendExcelData(workbook[sheetIndex].data, workbook[sheetIndex].data.length + numRows, workbook[sheetIndex].data[0].length);
     }
@@ -170,26 +180,52 @@
 
 
 
+    function uploadExcel(event){
+        let files = event.target.files; 
+        if (files.length === 0) {
+        console.log("No file selected");
+        return;
+    }
+    
+    let file = files[0];
+    
+    let reader = new FileReader();
+    
+    reader.readAsArrayBuffer(file);
+    
+    reader.onload = function(e) {
+        let data = e.target.result;
+        
+        let uploadedWorkbook = XLSX.read(data, { type: 'binary' });
+        
+        workbook=[]
+        excelSheets=[]
+        Object.keys(uploadedWorkbook.Sheets).forEach(sheetName => {
+            excelSheets=[...excelSheets,sheetName]
+            workbook=[...workbook,{
+                name:sheetName,
+                data:XLSX.utils.sheet_to_json(uploadedWorkbook.Sheets[sheetName], { header: 1 })
+            }]
+        })
 
+    };
 
-
-
+    }
 
 
     function downloadExcelWorkbook(){
+        const downloadWorkbook = XLSX.utils.book_new();
+        let downloadIndex=0
+        let modifiedData=[]
+        workbook.forEach((sheet) => {
+            modifiedData = sheet.data.slice(1).map(row => row.slice(1));
+            const worksheet = XLSX.utils.aoa_to_sheet(modifiedData);
+            XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
+            downloadIndex++;
+        });
 
-    const downloadWorkbook = XLSX.utils.book_new();
-    let downloadIndex=0
-    let modifiedData=[]
-    workbook.forEach((sheet) => {
-        modifiedData = sheet.data.slice(1).map(row => row.slice(1));
-        const worksheet = XLSX.utils.aoa_to_sheet(modifiedData);
-        XLSX.utils.book_append_sheet(downloadWorkbook, worksheet, excelSheets[downloadIndex]);
-        downloadIndex++;
-    });
-
-    XLSX.writeFile(downloadWorkbook, `${!workbookName?"newWorkbook":workbookName}.xlsx`);
-    console.log("Downloading Excel workbook...");
+        XLSX.writeFile(downloadWorkbook, `${!workbookName?"newWorkbook":workbookName}.xlsx`);
+        console.log("Downloading Excel workbook...");
     }
 
     async function confirmCaptcha(){
@@ -784,7 +820,7 @@
                         <div class="w-full flex flex-row p-3 gap-3">
                             <input bind:value={workbookName} placeholder="filename" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-gray-400 text-lg w-1/4 pl-4 rounded-lg">
                             <button class="py-1 relative px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">
-                                <input type="file" accept=".xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="absolute top-0 left-0 opacity-0 w-full h-full">
+                                <input type="file" on:change={uploadExcel} accept=".xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="absolute top-0 left-0 opacity-0 w-full h-full">
                                 <img src="folder.png" alt=""><div>Open</div>
                             </button>
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="save.png" alt=""><div>Save</div></button>
@@ -799,9 +835,13 @@
                         <div class="w-full flex flex-row pt-2 pl-4  justify-between pb-4">
                             <div class="flex flex-row gap-3 pb-1 overflow-x-auto" style="max-width:55%">
                                 {#each excelSheets as sheet,index}
-                                    <button on:click={()=>{
-                                        sheetIndex=index;
-                                        }} class="px-5 whitespace-nowrap {sheetIndex===index?"bg-gray-100":""} inline-block text-left py-1  rounded-xl hover:bg-gray-100 border-gray-200">{sheet}</button>
+                                    <div class="px-2 rounded-xl flex flex-row items-center group gap-2 {sheetIndex===index?"bg-gray-100":""} hover:bg-gray-100 border-gray-200">
+                                        <button on:click={()=>{
+                                            sheetIndex=index;
+                                            }} class="px-3  whitespace-nowrap {sheetIndex===index?"bg-gray-100":""} inline-block text-left py-1  rounded-xl overflow-x-hidden"><div class="overflow-x-hidden z-50">{sheet} </button>
+                                        <button on:click={()=>{if(excelSheets.length>1)deleteThisSheet(index)}} class="z-30 opacity-0 w-0 group-hover:relative group-hover:w-5 group-focus:w-5 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 hover:bg-red-500 rounded-2xl text-center text-gray-700 hover:text-white overflow-x-hidden text-sm" >✕</button>
+                        
+                                    </div>
                                 {/each}
                             </div>
                             <div class="flex flex-row justify-around">
@@ -837,7 +877,6 @@
                                                     {#if cellIndex!==0}
                                                         <td contenteditable="true"
                                                             bind:textContent={workbook[sheetIndex].data[rowIndex+1][cellIndex]}
-                                                            
                                                             class="bg-white relative select-none focus:outline-none border border-1 py-1 border-gray-300 {cellIndex===0?"text-center text-gray-700":""} px-2" >
                                                             {cell}                                                                                                   
                                                         </td>
