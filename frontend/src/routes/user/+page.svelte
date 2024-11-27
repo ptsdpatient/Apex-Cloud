@@ -557,9 +557,7 @@
     }
 
 
-            function updateCell(rowIndex, cellIndex, event) {
-            excelData[rowIndex][cellIndex] = event.target.textContent.trim();
-            }
+   
     
     
     onMount(()=>{
@@ -739,7 +737,9 @@
                                                     on:dblclick={()=>{
                                                     }}
                                                     on:click={()=>{
-                                                        if (files.isDirectory) {openFolder(files) }else {
+                                                        if (files.isDirectory) {
+                                                            openFolder(files) 
+                                                        } else {
                                                             if(files.name.endsWith('.xlsx') || files.name.endsWith('.docx')) handleFileEdit(files)
                                                         }
                                                     }}
@@ -834,11 +834,19 @@
                                             {#each workbook[sheetIndex].data.slice(1) as row, rowIndex}
                                             <tr>
                                                 {#each row as cell, cellIndex}
-                                                <td contenteditable="true" 
-
-                                                    class="bg-white  focus:outline-none border border-1 py-1 border-gray-300 {cellIndex===0?"text-center text-gray-700":""} px-3" >
-                                                    {cell}
-                                                </td>
+                                                    {#if cellIndex!==0}
+                                                        <td contenteditable="true"
+                                                            bind:textContent={workbook[sheetIndex].data[rowIndex+1][cellIndex]}
+                                                            
+                                                            class="bg-white relative select-none focus:outline-none border border-1 py-1 border-gray-300 {cellIndex===0?"text-center text-gray-700":""} px-2" >
+                                                            {cell}                                                                                                   
+                                                        </td>
+                                                    {:else}
+                                                        <td contenteditable="false"                                                        
+                                                            class="bg-white relative select-none focus:outline-none border border-1 py-1 border-gray-300 {cellIndex===0?"text-center text-gray-700":""} px-3" >
+                                                            {cell}                                                                                                   
+                                                        </td>
+                                                    {/if}
                                                 {/each}
                                             </tr>
                                             {/each}
