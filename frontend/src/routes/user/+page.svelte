@@ -7,6 +7,7 @@
 
 
     let workbookName=''
+    let sheetName=''
     let visible=false
     let username='Tanishq Dhote',email='tanishqbakka1@gmail.com'
     let token
@@ -70,8 +71,8 @@
         return table;
     }
 
-    workbook[0].data = generateExcelTable(100,100);
-    workbook[0].data=extendExcelData([],100,100,true)
+    workbook[0].data = generateExcelTable(40,20);
+    // workbook[0].data=extendExcelData([],0,0,true)
 
 
     let url='http://localhost:2000/api'
@@ -303,19 +304,39 @@
     }
 
     function printSheet(){
-        const doc = new jsPDF();
+        const doc = new jsPDF({ orientation: "landscape", format: "a4" });
         
-        let modifiedData = workbook[sheetIndex].data.slice(1).map(row => row.slice(1));
+        let headerCount=0,rowCount=0
 
-        console.log(modifiedData)
-        
+        workbook[sheetIndex].data.slice(1)[0].map(header => {
+            if(!header || header=='') return;
+            headerCount++
+        })
+
+        workbook[sheetIndex].data.slice(1).map((row) => {
+            if(!row[1] || row[1]=='') return;
+            rowCount++
+        })
+
+        let modifiedData = workbook[sheetIndex].data.slice(1,rowCount).map(row => row.slice(1,headerCount));
+
         autoTable(doc, {
             // head: modifiedData[0], // Use the first array as the header
             body: modifiedData, // Use the remaining arrays as table rows
-            startY: 20, // Starting Y position of the table
-            theme: 'grid', // Table style (optional)
-            // headStyles: { fillColor: [0, 102, 204] }, // Style the header (optional)
-            margin: { top: 20 } // Adjust top margin (optional) 
+            startY: 20, // Starting position for the table
+            theme: "grid", // Optional: Apply grid theme
+            styles: {
+            fontSize: 10, // Universal font size
+            cellPadding: 2, // Padding around cell content
+            },
+            headStyles: {
+            fillColor: [0, 102, 204], // Header background color
+            textColor: [255, 255, 255], // Header text color
+            },
+            columnStyles: {
+            // Automatically wrap text for all columns
+            default: { cellWidth: 'wrap' },
+            },
         });
 
         doc.save(`${!workbookName?'example':workbookName}.pdf`);
@@ -334,7 +355,7 @@
     
                 const data = await response.json();
                 
-                console.log(data)
+                // console.log(data)
 
                 subscriptions = data
                 subscription=subscriptions[0].sub_name
@@ -450,8 +471,8 @@
                 
                 workbook.forEach(sheet => {
                     try{
-                        console.log(JSON.stringify(sheet.data, null, 2))
-                        sheet.data = extendExcelData(sheet.data, 100, 50,true);
+                        // console.log(JSON.stringify(sheet.data, null, 2))
+                        sheet.data = extendExcelData(sheet.data, 100, 100,true);
                     }catch(err){
                         alert('error occured : '+err)
                     }
@@ -714,7 +735,16 @@
                                         <tr class=" {files.selected?"bg-blue-100":"hover:bg-gray-100"} {files.active?"hover:cursor-pointer":"opacity-0"} hover:shadow-sm rounded-xl  transition-all ease-in-out" >
                                             <td  class=" text-left flex flex-row  my-auto">
                                                 <input bind:checked={files.selected} class="accent-blue-600 hover:cursor-pointer transform scale-150 mx-3 mr-5  {files.active?"block":"hidden"}" type="checkbox">
-                                                <button on:click={()=>{(!files.isDirectory)?files.selected=!files.selected:openFolder(files)}} class="py-4  {files.active?"flex":"hidden"} flex-row items-center w-full">
+                                                <button 
+                                                    on:dblclick={()=>{
+                                                    }}
+                                                    on:click={()=>{
+                                                        if (files.isDirectory) {openFolder(files) }else {
+                                                            if(files.name.endsWith('.xlsx') || files.name.endsWith('.docx')) handleFileEdit(files)
+                                                        }
+                                                    }}
+                                                    
+                                                    class="py-4  {files.active?"flex":"hidden"} flex-row items-center w-full">
                                                     <img class="my-auto mr-2" style="width:24px;height:24px;" src={files.isDirectory?"folder.png":"file.png"} alt={files.isDirectory?"Folder":"File"}>
                                                     <div class="inline-block whitespace-nowrap overflow-x-hidden flex" style="width: 100%">
                                                         {#if files.name.length > 35}
@@ -733,7 +763,7 @@
                                             <td class=" py-1 text-left pl-5">
                                                 <div class="  {files.active?"flex":"hidden"} flex-row gap-4 text-2xl py-1">
                                                     <button on:click={()=>{alert("bookmark")}} class="hover:bg-yellow-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bookmarks.png" alt="bookmark"></button>
-                                                    <button on:click={()=>{if(!files.isDirectory) {handleFileEdit(files)}}} disabled={files.isDirectory} class="hover:bg-blue-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="edit.png" alt="bookmark"></button>
+                                                    <button on:click={()=>{}} disabled={files.isDirectory} class="hover:bg-blue-300 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Share.png" alt="bookmark"></button>
                                                     <button on:click={()=>{alert("delete")}} class="hover:bg-red-400 px-2 py-2 rounded-xl duration-100 transition-all"><img src="Bin.png" alt="bookmark"></button>
                                                 </div>                                    
                                             </td>
@@ -753,7 +783,10 @@
                     <div class="w-full h-full flex flex-col bg-white rounded-tl-2xl rounded-bl-2xl">
                         <div class="w-full flex flex-row p-3 gap-3">
                             <input bind:value={workbookName} placeholder="filename" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-gray-400 text-lg w-1/4 pl-4 rounded-lg">
-                            <button class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="folder.png" alt=""><div>Open</div></button>
+                            <button class="py-1 relative px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">
+                                <input type="file" accept=".xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="absolute top-0 left-0 opacity-0 w-full h-full">
+                                <img src="folder.png" alt=""><div>Open</div>
+                            </button>
                             <button class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="save.png" alt=""><div>Save</div></button>
                             <button on:click={downloadExcelWorkbook} class="py-1 px-3 rounded-lg hover:bg-gray-100  flex flex-row items-center align-center gap-2"><img src="download.png" alt=""><div>Download</div></button>
                             <button on:click={printSheet} class="py-1 px-3 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2"><img src="print.png" alt=""><div>Print</div></button>
@@ -766,12 +799,20 @@
                         <div class="w-full flex flex-row pt-2 pl-4  justify-between pb-4">
                             <div class="flex flex-row gap-3 pb-1 overflow-x-auto" style="max-width:55%">
                                 {#each excelSheets as sheet,index}
-                                    <button on:click={()=>{return sheetIndex=index}} class="px-5 whitespace-nowrap {sheetIndex===index?"bg-gray-100":""} inline-block text-left py-1  rounded-xl hover:bg-gray-100 border-gray-200">{sheet}</button>
+                                    <button on:click={()=>{
+                                        sheetIndex=index;
+                                        }} class="px-5 whitespace-nowrap {sheetIndex===index?"bg-gray-100":""} inline-block text-left py-1  rounded-xl hover:bg-gray-100 border-gray-200">{sheet}</button>
                                 {/each}
                             </div>
                             <div class="flex flex-row justify-around">
-                                <input placeholder="sheet name" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-gray-400 text-lg w-1/2 pl-4 rounded-lg">
-                                <button class="py-1 px-2 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Create Sheet</div></button>
+                                <input bind:value={sheetName} placeholder="sheet name" class="focus:outline-none bg-gray-100 hover:bg-gray-200 placeholder-gray-400 text-lg w-1/2 pl-4 rounded-lg">
+                                <button on:click={()=>{
+                                    excelSheets=[...excelSheets,(!sheetName||sheetName=='')?'new sheet'+excelSheets.length:sheetName]
+                                    workbook=[...workbook,{
+                                            name:excelSheets[excelSheets.length],
+                                            data: generateExcelTable(40,20)
+                                        }]
+                                    }} class="py-1 px-2 rounded-lg hover:bg-gray-100 flex flex-row items-center align-center gap-2">+<div>Create Sheet</div></button>
                             </div>
                         </div>
 
